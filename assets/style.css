@@ -159,7 +159,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 .omamori { position: relative; width: 44px; height: 58px; flex: none; }
 .omamori .body { position: absolute; inset: 8px 0 0; background: var(--fuchsia); border-radius: 6px 6px 10px 10px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
 .omamori .body::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 7px; background: var(--gold); border-radius: 6px 6px 0 0; }
-.omamori .body::after { content: "合格"; position: absolute; left: 0; right: 0; top: 14px; text-align: center; color: #fff; font-family: var(--f-head); font-size: 12px; line-height: 1.15; writing-mode: vertical-rl; margin-inline: auto; letter-spacing: .05em; }
+.omamori .body::after { content: "合\A格"; white-space: pre; position: absolute; left: 0; right: 0; top: 12px; text-align: center; color: #fff; font-family: var(--f-head); font-size: 12.5px; line-height: 1.15; }
 .omamori .str { position: absolute; left: 50%; top: 0; width: 12px; height: 12px; border: 2px solid var(--gold); border-radius: 50%; transform: translateX(-50%); }
 .nav-prog .bar { flex: 1; height: 8px; background: var(--mendl-2); border-radius: 999px; overflow: hidden; }
 .nav-prog .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--rose), var(--fuchsia)); border-radius: 999px; transition: width .6s var(--ease); }
@@ -563,3 +563,12 @@ mark { background: linear-gradient(transparent 42%, var(--rose-2) 42%, var(--ros
 .motto { font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(1.3rem, 2.8vw, 2rem); color: var(--fuchsia); letter-spacing: -.01em; line-height: 1.2; }
 .sec + .sec { border-top: 1px solid rgba(71,32,58,.08); }
 .hairline { border-top: .5px solid rgba(71,32,58,.22); }
+
+/* 쉽게 말하면 */
+.easy { position: relative; background: rgba(220,203,242,.42); border: 1px solid rgba(183,154,223,.55); border-radius: var(--radius); padding: 1.05rem 1.3rem 1rem; font-size: 1rem; line-height: 1.8; max-width: 900px; }
+.easy .lbl { display: inline-flex; align-items: center; gap: .5em; font-family: var(--f-mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--fuchsia-2); margin-bottom: .45rem; }
+.easy .lbl::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--lilac-2); box-shadow: 0 0 0 3px rgba(183,154,223,.35); }
+.easy p { margin: 0; }
+.easy p + p { margin-top: .55rem; }
+.easy b { color: var(--plum); }
+.easy .katex { font-size: 1.02em; }

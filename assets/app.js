@@ -29,6 +29,7 @@
     H.floors.forEach(f => {
       f.rooms.forEach((r, i) => {
         r.floor = f; r.i = i; r.code = f.n + '-' + pad2(i + 1);
+        if (!r.easy && H.easy && H.easy[r.id]) r.easy = H.easy[r.id];
         IDX.rooms[r.id] = r; IDX.order.push(r.id);
       });
     });
@@ -320,6 +321,7 @@
         <p class="en rv">${esc(r.en)}</p>
       </header>
       <div class="concierge rv"><div class="cat">${ART.cat}</div><div class="bubble"><span class="who">Concierge · 냥</span>${r.guide}</div></div>
+      ${r.easy ? `<div class="easy rv"><span class="lbl">쉽게 말하면 · Plain words</span>${r.easy}</div>` : ''}
       <div class="room-body rv">${r.body}</div>
       <aside class="mendl-box rv" aria-label="시험 포인트">${ART.bow.replace('<svg', '<svg class="bow"')}
         <h2>시험 포인트 <span class="chip">Mendl's box</span></h2>

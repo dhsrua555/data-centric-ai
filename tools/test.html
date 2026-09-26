@@ -20,6 +20,7 @@
 <script src="../data/floor2.js"></script>
 <script src="../data/floor3.js"></script>
 <script src="../data/floor4.js"></script>
+<script src="../data/easy.js"></script>
 <script src="../data/exam.js"></script>
 <script>
 (function () {
@@ -41,7 +42,8 @@
       });
       points += r.points ? r.points.length : 0;
       const el = document.createElement('div'); el.className = 'room-body';
-      el.innerHTML = '<h1>' + r.title + '</h1><div>' + r.guide + '</div>' + r.body + '<ol>' + (r.points || []).map(p => '<li>' + p + '</li>').join('') + '</ol>' + (r.formulas || []).map(x => '<div>$$' + x + '$$</div>').join('') + (r.quiz || []).map(q => '<div>' + q.q + (q.c || []).join(' ') + (q.why || '') + '</div>').join('');
+      if (!(H.easy && H.easy[r.id])) { log('MISSING easy ' + r.id); bad++; }
+      el.innerHTML = '<h1>' + r.title + '</h1><div>' + r.guide + '</div><div>' + ((H.easy && H.easy[r.id]) || '') + '</div>' + r.body + '<ol>' + (r.points || []).map(p => '<li>' + p + '</li>').join('') + '</ol>' + (r.formulas || []).map(x => '<div>$$' + x + '$$</div>').join('') + (r.quiz || []).map(q => '<div>' + q.q + (q.c || []).join(' ') + (q.why || '') + '</div>').join('');
       box.appendChild(el);
       try {
         renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false, trust: true, ignoredTags: ['script', 'style', 'textarea', 'pre', 'code'] });

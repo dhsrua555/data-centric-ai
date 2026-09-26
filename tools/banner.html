@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Grand Data Hotel banner</title>
+<!-- README 배너와 링크 미리보기 이미지의 원본. 1280×640으로 스크린샷해서 assets/banner.png, assets/og.png를 만듭니다. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=DM+Mono:wght@400;500&display=swap">
+<style>
+  :root { --mendl:#F8CAD7; --mendl-2:#FBDDE6; --rose:#F1A6C0; --rose-2:#F6BFD2; --fuchsia:#D6487D; --fuchsia-2:#B93A68; --plum:#47203A; --plum-2:#6E4460; --plum-3:#9A7A90; --cream:#FFF9F4; --cream-2:#FFF1EA; --mint:#BFE6D6; --mint-3:#3E8F73; --gold:#D9A64B; --seal:#C43A45; --lilac:#DCCBF2; --sky:#6FA4D8; }
+  html, body { margin: 0; background: var(--mendl); }
+  .b { position: relative; width: 1280px; height: 640px; overflow: hidden; background: var(--mendl); color: var(--plum); font-family: "Gowun Dodum", sans-serif; isolation: isolate; }
+  .b::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .55;
+    background-image: radial-gradient(circle at 50% 100%, transparent 26%, var(--mendl-2) 27%, var(--mendl-2) 33%, transparent 34%, transparent 46%, var(--mendl-2) 47%, var(--mendl-2) 53%, transparent 54%, transparent 66%, var(--mendl-2) 67%, var(--mendl-2) 73%, transparent 74%),
+      radial-gradient(circle at 0 50%, transparent 26%, var(--mendl-2) 27%, var(--mendl-2) 33%, transparent 34%, transparent 46%, var(--mendl-2) 47%, var(--mendl-2) 53%, transparent 54%, transparent 66%, var(--mendl-2) 67%, var(--mendl-2) 73%, transparent 74%),
+      radial-gradient(circle at 100% 50%, transparent 26%, var(--mendl-2) 27%, var(--mendl-2) 33%, transparent 34%, transparent 46%, var(--mendl-2) 47%, var(--mendl-2) 53%, transparent 54%, transparent 66%, var(--mendl-2) 67%, var(--mendl-2) 73%, transparent 74%);
+    background-size: 72px 36px; background-position: 0 0, 0 18px, 0 18px;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.25) 70%, transparent); mask-image: linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.25) 70%, transparent); }
+  .left { position: absolute; left: 72px; top: 92px; width: 640px; display: grid; gap: 22px; justify-items: start; }
+  .eyebrow { font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--plum-2); display: flex; align-items: center; gap: 12px; }
+  .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--fuchsia); }
+  h1 { margin: 0; font-family: "Fraunces", serif; font-weight: 600; font-size: 108px; line-height: .98; letter-spacing: -.025em; font-variation-settings: "opsz" 144; }
+  h1 em { font-style: italic; font-weight: 500; color: var(--fuchsia); }
+  .lede { font-size: 21px; line-height: 1.6; color: var(--plum-2); max-width: 30ch; margin: 4px 0 0; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: var(--cream); border-radius: 999px; padding: 8px 16px 8px 10px; font-size: 15px; box-shadow: 0 2px 0 rgba(71,32,58,.06); }
+  .chip b { font-family: "Fraunces", serif; font-weight: 600; color: var(--fuchsia); font-size: 17px; width: 24px; text-align: center; }
+  .url { position: absolute; left: 72px; bottom: 40px; font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: .12em; color: var(--plum-3); text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+  .url svg { width: 22px; height: 22px; }
+  /* 오른쪽 */
+  .right { position: absolute; right: 64px; top: 64px; width: 470px; height: 520px; }
+  .card { position: absolute; left: -24px; top: 64px; width: 330px; background: var(--cream); border-radius: 18px; padding: 22px 22px 18px; box-shadow: 0 16px 48px rgba(71,32,58,.18); transform: rotate(-4deg); }
+  .card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 12px; border-radius: 18px 18px 0 0; background: repeating-linear-gradient(90deg, var(--rose) 0 20px, var(--mendl-2) 20px 40px); }
+  .card .t { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--fuchsia); margin-top: 8px; }
+  .card h3 { margin: 6px 0 10px; font-family: "Gowun Batang", serif; font-size: 20px; font-weight: 700; }
+  .card svg.chart { width: 100%; height: auto; display: block; }
+  .tape { position: absolute; top: -12px; right: 26px; width: 84px; height: 24px; transform: rotate(6deg); border-radius: 2px; opacity: .95; background: repeating-linear-gradient(45deg, rgba(255,255,255,.55) 0 6px, rgba(255,255,255,.15) 6px 12px), var(--mint); }
+  .stamp { position: absolute; right: 22px; bottom: 60px; width: 72px; height: 72px; border-radius: 50%; border: 3px double var(--seal); color: var(--seal); font-family: "Gowun Batang", serif; font-weight: 700; font-size: 30px; display: grid; place-items: center; transform: rotate(-14deg); opacity: .85; mix-blend-mode: multiply; }
+  .cat { position: absolute; right: -6px; bottom: 6px; width: 226px; height: 258px; }
+  .bubble { position: absolute; right: 214px; bottom: 44px; background: var(--cream); border-radius: 18px 18px 4px 18px; padding: 12px 16px; font-size: 16px; line-height: 1.5; box-shadow: 0 8px 24px rgba(71,32,58,.14); width: 196px; }
+  .bubble::after { content: ""; position: absolute; right: -8px; bottom: 12px; border: 8px solid transparent; border-left-color: var(--cream); border-bottom-color: var(--cream); }
+  .bubble .who { display: block; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--fuchsia); margin-bottom: 4px; }
+  .omamori { position: absolute; right: 28px; top: 0; width: 46px; height: 62px; }
+  .omamori .body { position: absolute; inset: 9px 0 0; background: var(--fuchsia); border-radius: 6px 6px 10px 10px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+  .omamori .body::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 7px; background: var(--gold); border-radius: 6px 6px 0 0; }
+  .omamori .body::after { content: "合\A格"; white-space: pre; position: absolute; left: 0; right: 0; top: 13px; text-align: center; color: #fff; font-family: "Gowun Batang", serif; font-size: 14px; line-height: 1.15; }
+  .omamori .str { position: absolute; left: 50%; top: 0; width: 12px; height: 12px; border: 2px solid var(--gold); border-radius: 50%; transform: translateX(-50%); }
+  .cloud { position: absolute; width: 74px; height: 26px; background: rgba(255,255,255,.8); border-radius: 20px; }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: rgba(255,255,255,.8); border-radius: 50%; }
+  .cloud::before { left: 14px; top: -14px; width: 30px; height: 30px; } .cloud::after { left: 36px; top: -9px; width: 24px; height: 24px; }
+  .star { position: absolute; width: 16px; height: 16px; background: var(--gold); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+</style>
+</head>
+<body>
+<div class="b">
+  <span class="cloud" style="left:700px;top:60px;transform:scale(.9)"></span>
+  <span class="cloud" style="left:1120px;top:120px;transform:scale(.7)"></span>
+  <span class="cloud" style="left:560px;top:520px;transform:scale(.6)"></span>
+  <span class="star" style="left:640px;top:140px"></span>
+  <span class="star" style="left:1220px;top:300px;width:11px;height:11px"></span>
+  <span class="star" style="left:1180px;top:560px;width:13px;height:13px"></span>
+  <span class="star" style="left:40px;top:560px;width:12px;height:12px"></span>
+
+  <div class="left">
+    <div class="eyebrow"><i></i>Data-Centric AI · Lecture 1–4 · 시험 대비 스터디</div>
+    <h1>Grand <em>Data</em><br>Hotel</h1>
+    <p class="lede">데이터가 모델을 만듭니다. 4개 층 45개 객실, 한 객실에는 개념 하나만.</p>
+    <div class="chips">
+      <span class="chip"><b>1F</b>서론</span>
+      <span class="chip"><b>2F</b>선형회귀 I</span>
+      <span class="chip"><b>3F</b>선형회귀 II · 교차검증</span>
+      <span class="chip"><b>4F</b>로지스틱 회귀</span>
+    </div>
+  </div>
+  <div class="url"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="#D9A64B" stroke-width="3"/><circle cx="11" cy="11" r="2.6" fill="#D9A64B"/><path d="M16.5 16.5 L28 28 M23 23 L26 20 M20 20 L23 17" stroke="#D9A64B" stroke-width="3" stroke-linecap="round" fill="none"/></svg>dhsrua555.github.io/data-centric-ai</div>
+
+  <div class="right">
+    <div class="omamori"><span class="str"></span><span class="body"></span></div>
+    <div class="card">
+      <span class="tape"></span>
+      <div class="t">Room 1-11 · Mendl's box</div>
+      <h3>훈련 MSE vs 테스트 MSE</h3>
+      <svg class="chart" viewBox="0 0 290 150" aria-hidden="true">
+        <line x1="34" x2="280" y1="122" y2="122" stroke="rgba(71,32,58,.2)"/><line x1="34" x2="34" y1="10" y2="122" stroke="rgba(71,32,58,.2)"/>
+        <line x1="34" x2="280" y1="86" y2="86" stroke="#6E4460" stroke-dasharray="5 5"/>
+        <path d="M40 30 C 90 110, 150 116, 276 118" fill="none" stroke="#9A7A90" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M40 38 C 90 96, 130 70, 170 66 S 240 78, 276 104" fill="none" stroke="#C43A45" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="168" cy="66" r="5.5" fill="#D9A64B" stroke="#fff" stroke-width="2"/>
+        <text x="46" y="24" font-size="10.5" fill="#9A7A90" font-family="DM Mono, monospace">TRAIN</text>
+        <text x="236" y="98" font-size="10.5" fill="#C43A45" font-family="DM Mono, monospace">TEST</text>
+        <text x="40" y="82" font-size="9.5" fill="#6E4460" font-family="DM Mono, monospace">Var(ε)</text>
+        <text x="157" y="140" text-anchor="middle" font-size="10.5" fill="#6E4460" font-family="DM Mono, monospace">FLEXIBILITY →</text>
+      </svg>
+      <span class="stamp">完</span>
+    </div>
+    <div class="bubble"><span class="who">Concierge · 냥</span>어서 오세요! 한 객실에 개념 하나씩만 봐요.</div>
+    <svg class="cat" viewBox="0 0 120 138" aria-hidden="true">
+      <ellipse cx="60" cy="130" rx="34" ry="6" fill="rgba(71,32,58,.10)"/>
+      <path d="M32 92 q28 -22 56 0 v22 q-28 14 -56 0z" fill="#B79ADF"/>
+      <rect x="52" y="90" width="16" height="30" rx="3" fill="#8E6BC9"/>
+      <circle cx="60" cy="98" r="2.3" fill="#D9A64B"/><circle cx="60" cy="108" r="2.3" fill="#D9A64B"/>
+      <path d="M26 40 l4 -28 l22 18z" fill="#F6BFD2"/><path d="M94 40 l-4 -28 l-22 18z" fill="#F6BFD2"/>
+      <path d="M31 38 l2 -18 l14 12z" fill="#F1A6C0"/><path d="M89 38 l-2 -18 l-14 12z" fill="#F1A6C0"/>
+      <ellipse cx="60" cy="60" rx="38" ry="34" fill="#FFF3EC"/>
+      <rect x="40" y="10" width="40" height="22" rx="4" fill="#D6487D"/>
+      <rect x="40" y="26" width="40" height="6" fill="#D9A64B"/>
+      <rect x="38" y="30" width="44" height="4" rx="2" fill="#B93A68"/>
+      <circle cx="47" cy="60" r="4.2" fill="#47203A"/><circle cx="73" cy="60" r="4.2" fill="#47203A"/>
+      <circle cx="48.5" cy="58.5" r="1.4" fill="#fff"/><circle cx="74.5" cy="58.5" r="1.4" fill="#fff"/>
+      <ellipse cx="38" cy="70" rx="6" ry="3.5" fill="#F6BFD2"/><ellipse cx="82" cy="70" rx="6" ry="3.5" fill="#F6BFD2"/>
+      <path d="M57 68 q3 3 6 0" stroke="#47203A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M60 68 v3 q-4 4 -8 0 M60 71 q4 4 8 0" stroke="#47203A" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M20 64 h14 M20 70 h14 M86 64 h14 M86 70 h14" stroke="#9A7A90" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M96 104 q16 -4 12 -20" stroke="#F6BFD2" stroke-width="7" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+</body>
+</html>

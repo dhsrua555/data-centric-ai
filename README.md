@@ -1,6 +1,10 @@
+<p align="center"><a href="https://dhsrua555.github.io/data-centric-ai/"><img src="assets/banner.png" alt="Grand Data Hotel — Data-Centric AI 시험 대비 스터디" width="100%"></a></p>
+
 # Grand Data Hotel
 
 Data-Centric AI (서울대, 오민환 교수) Lecture 1–4 시험 대비 스터디 사이트. 강의 하나가 한 층, 개념 하나가 한 객실입니다.
+
+**사이트:** https://dhsrua555.github.io/data-centric-ai/
 
 `index.html`을 브라우저로 열면 바로 동작합니다(로컬 서버 불필요). 수식은 KaTeX(cdnjs), 글꼴은 Google Fonts를 씁니다.
 
