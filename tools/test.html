@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>GDH test harness</title>
+<link rel="stylesheet" href="../assets/katex.css">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<pre id="out"></pre>
+<div id="sandbox"></div>
+<script>
+  window.__errors = [];
+  window.addEventListener('error', e => window.__errors.push('window.error: ' + e.message + ' @' + (e.filename || '') + ':' + e.lineno));
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
+<script src="../assets/viz.js"></script>
+<script src="../data/floor1.js"></script>
+<script src="../data/floor2.js"></script>
+<script src="../data/floor3.js"></script>
+<script src="../data/floor4.js"></script>
+<script src="../data/exam.js"></script>
+<script>
+(function () {
+  const out = [], H = window.HOTEL, box = document.getElementById('sandbox');
+  const log = s => out.push(s);
+  let bad = 0;
+  const ids = new Set();
+  let rooms = 0, quizzes = 0, vizN = 0, points = 0;
+  H.floors.forEach(f => {
+    f.rooms.forEach(r => {
+      rooms++;
+      if (ids.has(r.id)) { log('DUP id ' + r.id); bad++; } ids.add(r.id);
+      if (!r.body || !r.points || !r.points.length) { log('MISSING body/points ' + r.id); bad++; }
+      if (!r.guide) { log('MISSING guide ' + r.id); bad++; }
+      (r.quiz || []).forEach((q, k) => {
+        quizzes++;
+        if (q.ox) { if (typeof q.a !== 'boolean') { log('OX answer not boolean ' + r.id + ':' + k); bad++; } }
+        else if (!Array.isArray(q.c) || q.a == null || q.a < 0 || q.a >= q.c.length) { log('BAD quiz ' + r.id + ':' + k); bad++; }
+      });
+      points += r.points ? r.points.length : 0;
+      const el = document.createElement('div'); el.className = 'room-body';
+      el.innerHTML = '<h1>' + r.title + '</h1><div>' + r.guide + '</div>' + r.body + '<ol>' + (r.points || []).map(p => '<li>' + p + '</li>').join('') + '</ol>' + (r.formulas || []).map(x => '<div>$$' + x + '$$</div>').join('') + (r.quiz || []).map(q => '<div>' + q.q + (q.c || []).join(' ') + (q.why || '') + '</div>').join('');
+      box.appendChild(el);
+      try {
+        renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false, trust: true, ignoredTags: ['script', 'style', 'textarea', 'pre', 'code'] });
+      } catch (e) { log('KATEX ERROR ' + r.id + ': ' + e.message); bad++; }
+      const errs = el.querySelectorAll('.katex-error'); if (errs.length) { log('katex-error x' + errs.length + ' in ' + r.id); bad++; }
+      const txt = el.textContent; if (/\$/.test(txt)) { log('LEFTOVER $ in ' + r.id + ': ' + txt.match(/.{0,30}\$.{0,30}/)[0]); bad++; }
+      if (/\$\{/.test(r.body)) { log('TEMPLATE ${ in ' + r.id); bad++; }
+      el.querySelectorAll('[data-viz]').forEach(v => {
+        vizN++;
+        const fn = window.VIZ[v.dataset.viz];
+        if (!fn) { log('NO VIZ ' + v.dataset.viz + ' in ' + r.id); bad++; return; }
+        try { fn(v, {}); if (!v.querySelector('svg, canvas, .mini')) { log('VIZ EMPTY ' + v.dataset.viz + ' in ' + r.id); bad++; } } catch (e) { log('VIZ ERROR ' + v.dataset.viz + ' in ' + r.id + ': ' + e.message + ' ' + (e.stack || '').split('\n')[1]); bad++; }
+        // exercise controls
+        try { v.querySelectorAll('input[type=range]').forEach(i => { i.value = i.max; i.dispatchEvent(new Event('input')); i.value = i.min; i.dispatchEvent(new Event('input')); }); v.querySelectorAll('.tabs button, .vizbtn').forEach(b => b.click()); v.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = true; c.dispatchEvent(new Event('input')); }); } catch (e) { log('VIZ CTRL ERROR ' + v.dataset.viz + ' in ' + r.id + ': ' + e.message); bad++; }
+      });
+      // svg sanity: NaN in attributes
+      el.querySelectorAll('svg').forEach(s => { if (/NaN|undefined/.test(s.outerHTML)) { log('SVG NaN/undefined in ' + r.id + ' viz'); bad++; } });
+    });
+  });
+  // cards
+  const cbox = document.createElement('div'); cbox.innerHTML = H.cards.map(c => '<div>' + c.q + '<hr>' + c.a + '</div>').join(''); box.appendChild(cbox);
+  try { renderMathInElement(cbox, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false }); } catch (e) { log('CARD KATEX ERROR: ' + e.message); bad++; }
+  if (/\$/.test(cbox.textContent)) { log('CARD LEFTOVER $: ' + cbox.textContent.match(/.{0,30}\$.{0,30}/)[0]); bad++; }
+  H.examExtra.forEach((q, i) => { if (!H.floors.some(f => f.rooms.some(r => r.id === q.room))) { log('EXTRA bad room ' + q.room); bad++; } if (q.a < 0 || q.a >= q.c.length) { log('EXTRA bad answer ' + i); bad++; } });
+  log('floors=' + H.floors.length + ' rooms=' + rooms + ' quizzes=' + quizzes + ' extra=' + H.examExtra.length + ' cards=' + H.cards.length + ' viz=' + vizN + ' points=' + points);
+  window.__errors.forEach(e => { log(e); bad++; });
+  log('RESULT ' + (bad ? 'FAIL ' + bad : 'OK'));
+  document.getElementById('out').textContent = out.join('\n');
+})();
+</script>
+</body>
+</html>
