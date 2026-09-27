@@ -22,6 +22,7 @@
 <script src="../data/floor4.js"></script>
 <script src="../data/easy.js"></script>
 <script src="../data/exam.js"></script>
+<script src="../assets/nyan.js"></script>
 <script>
 (function () {
   const out = [], H = window.HOTEL, box = document.getElementById('sandbox');
@@ -68,6 +69,31 @@
   try { renderMathInElement(cbox, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false }); } catch (e) { log('CARD KATEX ERROR: ' + e.message); bad++; }
   if (/\$/.test(cbox.textContent)) { log('CARD LEFTOVER $: ' + cbox.textContent.match(/.{0,30}\$.{0,30}/)[0]); bad++; }
   H.examExtra.forEach((q, i) => { if (!H.floors.some(f => f.rooms.some(r => r.id === q.room))) { log('EXTRA bad room ' + q.room); bad++; } if (q.a < 0 || q.a >= q.c.length) { log('EXTRA bad answer ' + i); bad++; } });
+  // 냥 꾸미기: 아이템 · 털색 조합 · 도장
+  const NY = window.NYAN; let nyN = 0;
+  if (!NY) { log('NO NYAN'); bad++; } else {
+    const slots = NY.SLOTS.map(s => s.id), seen = new Set();
+    NY.ITEMS.forEach(it => {
+      if (seen.has(it.id)) { log('NYAN dup id ' + it.id); bad++; } seen.add(it.id);
+      if (!slots.includes(it.slot)) { log('NYAN bad slot ' + it.id); bad++; }
+      if (it.ach ? !NY.ACH[it.ach] : typeof it.price !== 'number') { log('NYAN price/ach ' + it.id); bad++; }
+      if (it.slot === 'fur' && !NY.FUR[it.id]) { log('NYAN fur palette missing ' + it.id); bad++; }
+      if ((it.price || it.ach) && !it.desc) { log('NYAN desc missing ' + it.id); bad++; }
+    });
+    Object.keys(NY.DEFAULT).forEach(s => { const it = NY.BY[NY.DEFAULT[s]]; if (!it || it.slot !== s || it.price) { log('NYAN bad default ' + s); bad++; } });
+    Object.keys(NY.ACH).forEach(a => { if (!NY.ITEMS.some(i => i.ach === a)) { log('NYAN ach without item ' + a); bad++; } });
+    const furs = NY.ITEMS.filter(i => i.slot === 'fur').map(i => i.id);
+    const check = (svg, what) => { nyN++; if (/NaN|undefined|null|\[object/.test(svg)) { log('NYAN bad svg ' + what); bad++; } const d = document.createElement('div'); d.innerHTML = svg; if (!d.querySelector('svg')) { log('NYAN no svg ' + what); bad++; } };
+    NY.ITEMS.forEach(it => {
+      if (it.slot === 'stamp') { check(NY.stamp(it.id), it.id); return; }
+      furs.forEach(f => { const L = { fur: f }; L[it.slot] = it.id; check(NY.render(L), it.id + '/' + f); });
+      const sl = NY.SLOTS.find(s => s.id === it.slot); const L = {}; L[it.slot] = it.id; check(NY.render(L, { crop: sl.crop }), it.id + ' thumb');
+    });
+    const all = {}; NY.SLOTS.forEach(s => { const c = NY.ITEMS.filter(i => i.slot === s.id); all[s.id] = c[c.length - 1].id; }); check(NY.render(all, { label: 'x' }), 'all slots');
+    const n = NY.norm({ hat: 'o-lobby', face: 'nope' }); if (n.hat !== NY.DEFAULT.hat || n.face !== NY.DEFAULT.face) { log('NYAN norm does not reject bad ids'); bad++; }
+    const ids = new Set(); const two = NY.render({}) + NY.render({}) + NY.stamp('st-paw') + NY.stamp('st-paw'); (two.match(/id="([^"]+)"/g) || []).forEach(m => { if (ids.has(m)) { log('NYAN id clash ' + m); bad++; } ids.add(m); });
+    log('nyan items=' + NY.ITEMS.length + ' renders=' + nyN + ' shop total=' + NY.ITEMS.reduce((s, i) => s + (i.price || 0), 0));
+  }
   log('floors=' + H.floors.length + ' rooms=' + rooms + ' quizzes=' + quizzes + ' extra=' + H.examExtra.length + ' cards=' + H.cards.length + ' viz=' + vizN + ' points=' + points);
   window.__errors.forEach(e => { log(e); bad++; });
   log('RESULT ' + (bad ? 'FAIL ' + bad : 'OK'));
