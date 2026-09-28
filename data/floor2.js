@@ -112,7 +112,7 @@ $$\sum_{i=1}^n x_i\big(y_i - (\bar y - \hat\beta_1\bar x + \hat\beta_1 x_i)\big)
 <div class="formula" data-t="기울기의 표준오차">$$\mathrm{SE}(\hat\beta_1)^2 = \frac{\sigma^2}{\sum_{i=1}^n (x_i - \bar x)^2}, \qquad \sigma^2 = \mathrm{Var}(\varepsilon)$$</div>
 <div class="viz" data-viz="sampling"></div>
 <h3>신뢰구간</h3>
-<p>표준오차로 <b>신뢰구간</b>을 만듭니다. 95% 신뢰구간: 95%의 확률로 모수의 진짜 값을 포함하게 되는 범위.</p>
+<p>표준오차로 <b>신뢰구간</b>을 만듭니다. 슬라이드 표현은 "95%의 확률로 모수의 진짜 값을 포함하게 되는 범위"인데, 여기서 95%는 <b>구간을 만드는 절차</b>에 대한 확률이에요. 교수님 설명: 데이터를 100번 새로 얻어 구간을 100개 만들면 약 95개가 진짜 값을 포함한다. (이미 만든 한 구간에 β₁이 들어 있을 확률이 95%라는 뜻이 아님)</p>
 <div class="formula" data-t="기울기의 95% 신뢰구간">$$\hat\beta_1 \pm 2\cdot \mathrm{SE}(\hat\beta_1) \quad\Longrightarrow\quad \big[\hat\beta_1 - 2\,\mathrm{SE}(\hat\beta_1),\ \hat\beta_1 + 2\,\mathrm{SE}(\hat\beta_1)\big]$$<p>"지금과 같은 표본을 반복해서 얻는 시나리오"에서, 이 구간이 진짜 $\beta_1$을 포함할 확률이 약 95%. 광고 데이터에서 $\beta_1$의 95% 신뢰구간은 <b>[0.042, 0.053]</b>.</p></div>
 <div class="tip"><b>SE를 작게 만드는 것.</b> 분모 $\sum(x_i - \bar x)^2$이 클수록(= $x$가 넓게 퍼져 있고, $n$이 클수록), 분자 $\sigma^2$이 작을수록 SE가 작아져요. "예측변수가 넓게 퍼져 있으면 기울기를 더 정확히 안다"는 직관.</div>
 <details class="deep"><summary>교재 보충: 절편의 표준오차</summary><div class="body"><p>슬라이드엔 없지만 교재(ISLR)에는 $\mathrm{SE}(\hat\beta_0)^2 = \sigma^2\big[\frac1n + \frac{\bar x^2}{\sum(x_i - \bar x)^2}\big]$도 있습니다. 실제로는 $\sigma$를 모르니 잔차로 추정한 RSE(2-8 객실)를 대신 씁니다.</p></div></details>`,
@@ -190,7 +190,7 @@ $$\sum_{i=1}^n x_i\big(y_i - (\bar y - \hat\beta_1\bar x + \hat\beta_1 x_i)\big)
         body: R`
 <div class="formula" data-t="잔차 표준오차 (RSE)">$$\mathrm{RSE} = \sqrt{\frac{\mathrm{RSS}}{n-2}} = \sqrt{\frac{1}{n-2}\sum_{i=1}^n (y_i - \hat y_i)^2}$$<p>RSE는 오차 $\varepsilon$의 <mark>표준편차 $\sigma$의 추정값</mark>. $Y$와 같은 단위로 "평균적으로 얼마나 빗나가는가".</p></div>
 <div class="viz" data-viz="tssrss"></div>
-<div class="formula" data-t="R² = 설명된 분산의 비율">$$R^2 = \frac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}} = 1 - \frac{\mathrm{RSS}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^n (y_i - \bar y)^2$$<p>TSS는 <b>총제곱합(total sum of squares)</b>: $X$를 전혀 쓰지 않고 평균으로 예측할 때의 변동. RSS는 직선을 쓰고도 남은 변동. $R^2$은 0과 1 사이, 클수록 좋음.</p></div>
+<div class="formula" data-t="R² = 설명된 분산의 비율">$$R^2 = \frac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}} = 1 - \frac{\mathrm{RSS}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^n (y_i - \bar y)^2$$<p>TSS는 <b>총제곱합(total sum of squares)</b>: $X$를 전혀 쓰지 않고 평균으로 예측할 때의 변동. RSS는 직선을 쓰고도 남은 변동. 최소제곱 선형회귀(절편 포함)의 훈련 ^2�� 0과 1 사이이고 클수록 좋음. (일반 모델은 평균 예측보다 못하면 음수도 가능: 교수님이 짚은 함정)</p></div>
 <p>단순선형회귀에서는 $R^2 = r^2$임을 보일 수 있습니다. $r$은 $X$와 $Y$의 상관계수:</p>
 <div class="formula" data-t="상관계수">$$r = \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sqrt{\sum_{i=1}^n (x_i - \bar x)^2}\sqrt{\sum_{i=1}^n (y_i - \bar y)^2}}$$</div>
 <h3>광고 데이터 (sales ≈ β₀ + β₁·TV)</h3>

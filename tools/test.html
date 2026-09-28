@@ -22,6 +22,7 @@
 <script src="../data/floor4.js"></script>
 <script src="../data/easy.js"></script>
 <script src="../data/exam.js"></script>
+<script src="../data/lecture.js"></script>
 <script src="../assets/nyan.js"></script>
 <script>
 (function () {
@@ -69,6 +70,39 @@
   try { renderMathInElement(cbox, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false }); } catch (e) { log('CARD KATEX ERROR: ' + e.message); bad++; }
   if (/\$/.test(cbox.textContent)) { log('CARD LEFTOVER $: ' + cbox.textContent.match(/.{0,30}\$.{0,30}/)[0]); bad++; }
   H.examExtra.forEach((q, i) => { if (!H.floors.some(f => f.rooms.some(r => r.id === q.room))) { log('EXTRA bad room ' + q.room); bad++; } if (q.a < 0 || q.a >= q.c.length) { log('EXTRA bad answer ' + i); bad++; } });
+  // 강의 노트 · 실전 연습 · 실전형 문제 은행
+  const roomIds = new Set(H.floors.flatMap(f => f.rooms.map(r => r.id)));
+  let lecN = 0, drillN = 0;
+  const kx = (html, where) => {
+    const el = document.createElement('div'); el.innerHTML = html; box.appendChild(el);
+    try { renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: true, strict: false }); } catch (e) { log('KATEX ' + where + ': ' + e.message); bad++; }
+    if (/\$/.test(el.textContent)) { log('LEFTOVER $ in ' + where + ': ' + el.textContent.match(/.{0,30}\$.{0,30}/)[0]); bad++; }
+    if (/\$\{|undefined/.test(html)) { log('TEMPLATE/undefined in ' + where); bad++; }
+  };
+  Object.keys(H.lecture || {}).forEach(id => {
+    if (!roomIds.has(id)) { log('LECTURE bad room ' + id); bad++; }
+    (H.lecture[id] || []).forEach((n, k) => { lecN++; if (!n.at || !n.html || !['exam', 'key', 'trap', 'story'].includes(n.tag)) { log('LECTURE bad note ' + id + ':' + k); bad++; } kx(n.html, 'lecture ' + id + ':' + k); });
+  });
+  Object.keys(H.drill || {}).forEach(id => {
+    if (!roomIds.has(id)) { log('DRILL bad room ' + id); bad++; }
+    (H.drill[id] || []).forEach((q, k) => {
+      drillN++; const w = 'drill ' + id + ':' + k;
+      if (q.t === 'tf') { if (typeof q.a !== 'boolean' || !q.why) { log('DRILL tf bad ' + w); bad++; } }
+      else if (q.t === 'multi') { if (!Array.isArray(q.c) || !Array.isArray(q.a) || !q.a.length || q.a.some(i => i < 0 || i >= q.c.length) || !q.why) { log('DRILL multi bad ' + w); bad++; } }
+      else if (q.t === 'short') { if (!q.model || !Array.isArray(q.rubric) || !q.rubric.length) { log('DRILL short bad ' + w); bad++; } }
+      else { log('DRILL unknown type ' + w); bad++; }
+      if (!q.ko) { log('DRILL missing ko ' + w); bad++; }
+      kx(q.q + ' ' + (q.c || []).join(' ') + ' ' + (q.why || '') + ' ' + (q.model || ''), w);
+    });
+  });
+  const Wr = H.written || {};
+  (Wr.scenarios || []).forEach((s, k) => { if (typeof s.b !== 'boolean' || !s.why) { log('SCENARIO bad ' + k); bad++; } kx(s.q + ' ' + s.why, 'scenario ' + k); });
+  (Wr.long || []).forEach((l, k) => { const pts = (l.rubric || []).reduce((s, x) => s + x[1], 0); if (pts !== 10) { log('LONG rubric points ' + k + ' = ' + pts); bad++; } kx(l.q + ' ' + l.model, 'long ' + k); });
+  if ((Wr.scenarios || []).length < 8 || (Wr.long || []).length < 1) { log('WRITTEN bank too small'); bad++; }
+  const allDrill = Object.values(H.drill || {}).flat();
+  if (allDrill.filter(q => q.t === 'tf').length < 10 || allDrill.filter(q => q.t === 'multi').length < 4) { log('DRILL bank too small for real exam'); bad++; }
+  log('lecture notes=' + lecN + ' drill=' + drillN + ' (tf ' + allDrill.filter(q => q.t === 'tf').length + ', multi ' + allDrill.filter(q => q.t === 'multi').length + ', short ' + allDrill.filter(q => q.t === 'short').length + ') scenarios=' + (Wr.scenarios || []).length + ' long=' + (Wr.long || []).length);
+
   // 냥 꾸미기: 아이템 · 털색 조합 · 도장
   const NY = window.NYAN; let nyN = 0;
   if (!NY) { log('NO NYAN'); bad++; } else {
