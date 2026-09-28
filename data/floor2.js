@@ -190,7 +190,7 @@ $$\sum_{i=1}^n x_i\big(y_i - (\bar y - \hat\beta_1\bar x + \hat\beta_1 x_i)\big)
         body: R`
 <div class="formula" data-t="잔차 표준오차 (RSE)">$$\mathrm{RSE} = \sqrt{\frac{\mathrm{RSS}}{n-2}} = \sqrt{\frac{1}{n-2}\sum_{i=1}^n (y_i - \hat y_i)^2}$$<p>RSE는 오차 $\varepsilon$의 <mark>표준편차 $\sigma$의 추정값</mark>. $Y$와 같은 단위로 "평균적으로 얼마나 빗나가는가".</p></div>
 <div class="viz" data-viz="tssrss"></div>
-<div class="formula" data-t="R² = 설명된 분산의 비율">$$R^2 = \frac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}} = 1 - \frac{\mathrm{RSS}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^n (y_i - \bar y)^2$$<p>TSS는 <b>총제곱합(total sum of squares)</b>: $X$를 전혀 쓰지 않고 평균으로 예측할 때의 변동. RSS는 직선을 쓰고도 남은 변동. 최소제곱 선형회귀(절편 포함)의 훈련 ^2�� 0과 1 사이이고 클수록 좋음. (일반 모델은 평균 예측보다 못하면 음수도 가능: 교수님이 짚은 함정)</p></div>
+<div class="formula" data-t="R² = 설명된 분산의 비율">$$R^2 = \frac{\mathrm{TSS} - \mathrm{RSS}}{\mathrm{TSS}} = 1 - \frac{\mathrm{RSS}}{\mathrm{TSS}}, \qquad \mathrm{TSS} = \sum_{i=1}^n (y_i - \bar y)^2$$<p>TSS는 <b>총제곱합(total sum of squares)</b>: $X$를 전혀 쓰지 않고 평균으로 예측할 때의 변동. RSS는 직선을 쓰고도 남은 변동. 최소제곱 선형회귀(절편 포함)의 훈련 $R^2$은 0과 1 사이이고 클수록 좋음. (일반 모델은 평균 예측보다 못하면 음수도 가능: 교수님이 짚은 함정)</p></div>
 <p>단순선형회귀에서는 $R^2 = r^2$임을 보일 수 있습니다. $r$은 $X$와 $Y$의 상관계수:</p>
 <div class="formula" data-t="상관계수">$$r = \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sqrt{\sum_{i=1}^n (x_i - \bar x)^2}\sqrt{\sum_{i=1}^n (y_i - \bar y)^2}}$$</div>
 <h3>광고 데이터 (sales ≈ β₀ + β₁·TV)</h3>
