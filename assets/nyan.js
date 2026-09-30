@@ -46,6 +46,10 @@
     return 'M' + p.join(' L') + ' Z';
   }
   const heart = (x, y, s) => `M${r2(x)} ${r2(y + s * .85)} C${r2(x - s * 1.25)} ${r2(y + s * .05)} ${r2(x - s * .85)} ${r2(y - s * .95)} ${r2(x)} ${r2(y - s * .3)} C${r2(x + s * .85)} ${r2(y - s * .95)} ${r2(x + s * 1.25)} ${r2(y + s * .05)} ${r2(x)} ${r2(y + s * .85)} Z`;
+  // 네 갈래 반짝이
+  const sparkle = (x, y, s) => `M${x} ${r2(y - s)} Q${x} ${y} ${r2(x + s)} ${y} Q${x} ${y} ${x} ${r2(y + s)} Q${x} ${y} ${r2(x - s)} ${y} Q${x} ${y} ${x} ${r2(y - s)} Z`;
+  // 목선(39,87)–(60,101)–(81,87) 위의 점
+  const collar = t => [r2((1 - t) * (1 - t) * 39 + 2 * (1 - t) * t * 60 + t * t * 81), r2((1 - t) * (1 - t) * 87 + 2 * (1 - t) * t * 101 + t * t * 87)];
 
   /* ---------- 털색 ---------- */
   const FUR = {
@@ -99,8 +103,22 @@
       draw: () => `<ellipse cx="60" cy="28" rx="15.5" ry="8" fill="#EBC99E"/><ellipse cx="60" cy="25.5" rx="14.5" ry="6.4" fill="#CDB6EC"/><ellipse cx="60" cy="20.3" rx="9.5" ry="2.4" fill="#FFFDF9"/><ellipse cx="60" cy="16.8" rx="10" ry="5.6" fill="#EBC99E"/><ellipse cx="60" cy="15" rx="9.4" ry="4.6" fill="#F6BFD2"/><ellipse cx="60" cy="11" rx="6" ry="1.8" fill="#FFFDF9"/><circle cx="60" cy="8.2" r="5.2" fill="#EBC99E"/><ellipse cx="60" cy="7.2" rx="5" ry="3.9" fill="#BFE6D6"/><ellipse cx="60" cy="2.6" rx="1.6" ry="2.3" fill="#6B4331"/><path d="M50 23.5 q4 -2.4 8 -2.6 M53.5 13.6 q3 -1.6 5.5 -1.8" stroke="#fff" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round" fill="none"/>` },
     { id: 'h-tiara', slot: 'hat', name: '핑크 하트 티아라', en: 'Pink heart tiara', price: 400, desc: '부티크에서 가장 비싼 보물. 하트 보석이 박힌 공주님 티아라예요. 꾸준히 모아야 살 수 있어요.',
       draw: () => `<g transform="rotate(-4 60 26)"><path d="M43 30.5 Q60 24.5 77 30.5 L75.8 33.6 Q60 28 44.2 33.6 Z" fill="#E6E0EE" stroke="#B9AFC8" stroke-width=".7"/><path d="M44 30.6 Q45.5 22.5 50 27.2 Q52.5 16.5 57 23.6 Q60 9.5 63 23.6 Q67.5 16.5 70 27.2 Q74.5 22.5 76 30.6 Q60 25.2 44 30.6 Z" fill="#F7F4FA" stroke="#B9AFC8" stroke-width=".8" stroke-linejoin="round"/><path d="${heart(60, 21.4, 3.8)}" fill="#E0457F" stroke="#B93A68" stroke-width=".6"/><circle cx="58.8" cy="20" r=".9" fill="#fff" opacity=".8"/><circle cx="50.2" cy="26.4" r="1.5" fill="#F6BFD2"/><circle cx="69.8" cy="26.4" r="1.5" fill="#F6BFD2"/><circle cx="60" cy="11.4" r="1.6" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".5"/><circle cx="52.3" cy="17.6" r="1.1" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".4"/><circle cx="67.7" cy="17.6" r="1.1" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".4"/><path d="M82 15 l1 2.4 l2.4 1 l-2.4 1 l-1 2.4 l-1 -2.4 l-2.4 -1 l2.4 -1 z" fill="#F6DF95"/><path d="M37 19 l.7 1.6 l1.6 .7 l-1.6 .7 l-.7 1.6 l-.7 -1.6 l-1.6 -.7 l1.6 -.7 z" fill="#F6BFD2"/></g>` },
-    { id: 'h-crown', slot: 'hat', name: '금빛 왕관', en: 'Golden crown', ach: 'crown', desc: '빠른 모의고사 만점자에게만 주어지는 왕관.',
-      draw: () => `<g transform="rotate(-8 60 22)"><path d="M44 31 L41.5 14 L51 22 L60 9.5 L69 22 L78.5 14 L76 31 Z" fill="#E8C15A" stroke="#B8862E" stroke-width=".9" stroke-linejoin="round"/><rect x="44" y="27.5" width="32" height="4" fill="#D9A64B"/><circle cx="60" cy="23.5" r="2.4" fill="#D6487D"/><circle cx="50.5" cy="25" r="1.5" fill="#8FCDB8"/><circle cx="69.5" cy="25" r="1.5" fill="#8FCDB8"/><circle cx="41.5" cy="14" r="1.8" fill="#E8C15A"/><circle cx="60" cy="9.5" r="1.9" fill="#E8C15A"/><circle cx="78.5" cy="14" r="1.8" fill="#E8C15A"/></g>` },
+    { id: 'h-crown', slot: 'hat', name: '핑크 다이아 왕관', en: 'Pink diamond crown', ach: 'crown', desc: '빠른 모의고사 만점자에게만 주어지는 왕관. 로즈골드 틀에 하트 다이아와 진주를 두르고, 머리 위로 분홍빛 후광이 반짝여요.',
+      draw: {
+        back: c => `<defs><radialGradient id="${c.u}cgl"><stop offset="0" stop-color="#FFD0E3" stop-opacity=".95"/><stop offset=".6" stop-color="#FFC2DA" stop-opacity=".45"/><stop offset="1" stop-color="#FFC2DA" stop-opacity="0"/></radialGradient></defs><ellipse cx="60" cy="20" rx="42" ry="24" fill="url(#${c.u}cgl)"/>`,
+        main: c => `<defs><linearGradient id="${c.u}cm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE6F0"/><stop offset=".55" stop-color="#F7A6C7"/><stop offset="1" stop-color="#E06A9C"/></linearGradient><linearGradient id="${c.u}cv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4579A"/><stop offset="1" stop-color="#A5245D"/></linearGradient><radialGradient id="${c.u}cj" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#FFE9F3"/><stop offset=".35" stop-color="#FF6FAA"/><stop offset="1" stop-color="#B0175B"/></radialGradient></defs>`
+          + `<g transform="rotate(-6 60 24)"><path d="M44 28 C43 5 77 5 76 28 Z" fill="url(#${c.u}cv)"/>`
+          + `<path d="M41 32 L38.5 14.5 L47.5 22 L51 9.5 L55.8 20.5 L60 4.2 L64.2 20.5 L69 9.5 L72.5 22 L81.5 14.5 L79 32 Z" fill="url(#${c.u}cm)" stroke="#C94A82" stroke-width=".8" stroke-linejoin="round"/>`
+          + `<path d="M40.4 17.5 L41.6 27 M51.6 13 L53.4 20.4 M60 8.6 V17.8 M68.4 13 L66.6 20.4" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".6"/>`
+          + `<path d="M40.6 27 Q60 23.4 79.4 27 L79 33.2 Q60 29.6 41 33.2 Z" fill="#DE5F95" stroke="#B93A68" stroke-width=".6"/>`
+          + [43.8, 47.8, 51.8, 68.2, 72.2, 76.2].map(x => { const u = (x - 60) / 19.4; return `<circle cx="${x}" cy="${r2(30.1 - 1.8 * (1 - u * u))}" r="1.25" fill="#FFF8FB" stroke="#F0C3D6" stroke-width=".35"/>`; }).join('')
+          + `<path d="${heart(60, 29.4, 2.7)}" fill="#FF8DB8" stroke="#B93A68" stroke-width=".45"/>`
+          + `<path d="${heart(60, 16.6, 4.9)}" fill="url(#${c.u}cj)" stroke="#9E1650" stroke-width=".6"/><path d="M57.4 14.8 q1 -1.6 2.4 -1.2" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".9"/>`
+          + [50, 70].map(x => `<path d="M${x} 20 L${x + 2.3} 23 L${x} 26 L${x - 2.3} 23 Z" fill="url(#${c.u}cj)" stroke="#B93A68" stroke-width=".45"/><path d="M${x - 2.3} 23 H${x + 2.3} M${x} 20 V26" stroke="#FFE3EF" stroke-width=".35" opacity=".8"/>`).join('')
+          + [[38.5, 14.5], [51, 9.5], [69, 9.5], [81.5, 14.5]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2" fill="#FFF8FB" stroke="#EDB8CF" stroke-width=".5"/><circle cx="${p[0] - .6}" cy="${p[1] - .6}" r=".6" fill="#fff"/>`).join('')
+          + `<circle cx="60" cy="4.2" r="2.3" fill="url(#${c.u}cj)" stroke="#9E1650" stroke-width=".45"/></g>`
+          + `<path d="${sparkle(31, 10, 3.6)} ${sparkle(90, 5.5, 2.8)}" fill="#FFF3C4"/><path d="${sparkle(92, 25, 2.2)} ${sparkle(27, 26, 2)} ${sparkle(76, 2.8, 1.5)}" fill="#FFFFFF"/><circle cx="36" cy="4.6" r=".9" fill="#FFB3D0"/><circle cx="96" cy="15" r=".8" fill="#FFB3D0"/>`
+      } },
 
     /* 얼굴 */
     { id: 'f-none', slot: 'face', name: '맨얼굴', price: 0 },
@@ -125,10 +143,18 @@
       draw: () => `<path d="M41 88 Q60 97 79 88 Q81 110 60 116.5 Q39 110 41 88 Z" fill="#D9434E"/><path d="M43.5 91 Q60 99 76.5 91 Q77.5 108 60 113.5 Q42.5 108 43.5 91 Z" fill="none" stroke="#F4B8C0" stroke-width=".8" stroke-dasharray="1.6 1.4"/>${flower(60, 105.5, 4, '#FDEBF0', '#D9A64B')}` },
     { id: 'n-scarf', slot: 'neck', name: '민트 목도리', en: 'Knit scarf', price: 90, desc: '도서관이 추울 때 두르는 폭신한 줄무늬 목도리.',
       draw: () => `<path d="M69 97 L75.5 123 L84 121 L78.5 94.5 Z" fill="#8FCDB8"/><path d="M71.6 106.6 L80.4 104.4 M73.4 114 L82 112" stroke="#FFF9F4" stroke-width="2.2"/><path d="M76 123 l-.4 3.2 M79 122.4 l0 3.2 M82 121.6 l.4 3.2" stroke="#8FCDB8" stroke-width="1.3" stroke-linecap="round"/><path d="M37 85 Q60 102 83 85 L85 93 Q60 111 35 93 Z" fill="#8FCDB8"/><path d="M36.6 89.2 Q60 106 83.8 89.2" stroke="#FFF9F4" stroke-width="2.2" fill="none"/><path d="M42 91 l1 3 M48 94.6 l.8 3 M54 96.6 l.5 3 M66 96.6 l-.5 3 M72 94.6 l-.8 3 M78 91 l-1 3" stroke="#6FB39C" stroke-width=".8" stroke-linecap="round"/>` },
-    { id: 'n-keys', slot: 'neck', name: '크로스드 키 배지', en: 'Society of the Crossed Keys', ach: 'keys', desc: '비밀 컨시어지 협회, 크로스드 키 소사이어티의 금배지. 모든 객실의 열쇠를 모은 증표.',
-      draw: () => `<path d="M42 87 L57 104 M78 87 L63 104" stroke="#8E6BC9" stroke-width="3.4" stroke-linecap="round"/><circle cx="60" cy="106" r="8" fill="#E8C15A" stroke="#B8862E" stroke-width="1"/><circle cx="60" cy="106" r="6" fill="none" stroke="#F6DF95" stroke-width=".6"/><g stroke="#8A6424" stroke-width="1.15" fill="none" stroke-linecap="round"><path d="M56.2 102.2 L63.8 109.8 M63.8 102.2 L56.2 109.8 M62.3 109.9 l1.5 -1.5 M57.7 109.9 l-1.5 -1.5"/><circle cx="55.6" cy="101.6" r="1.4"/><circle cx="64.4" cy="101.6" r="1.4"/></g>` },
-    { id: 'n-goldbell', slot: 'neck', name: '황금 방울', en: 'Golden bell', ach: 'streak', desc: '7일 연속으로 들른 단골손님에게 드리는 황금 방울.',
-      draw: () => `<path d="M39 87 Q60 101 81 87" stroke="#D9A64B" stroke-width="4.4" fill="none" stroke-linecap="round"/><path d="M39 87 Q60 101 81 87" stroke="#F6DF95" stroke-width="1" fill="none" stroke-dasharray="2 2.4"/><circle cx="60" cy="100.5" r="6.8" fill="#F0CD62" stroke="#B8862E" stroke-width=".9"/><path d="M54 101 h12" stroke="#B8862E" stroke-width=".9"/><circle cx="60" cy="104.2" r="1.3" fill="#8A6424"/><path d="M60 104.2 v2.8" stroke="#8A6424" stroke-width=".9"/><circle cx="57.6" cy="97.8" r="1.7" fill="#fff" opacity=".75"/><path d="M71 96 l1 2.4 l2.4 1 l-2.4 1 l-1 2.4 l-1 -2.4 l-2.4 -1 l2.4 -1 z" fill="#F6DF95"/>` },
+    { id: 'n-keys', slot: 'neck', name: '핑크 하트 보석 목걸이', en: 'Pink heart jewel necklace', ach: 'keys', desc: '45개 객실에 모두 도장을 찍은 사람의 증표. 진주 목걸이 끝에 커다란 핑크 하트 보석이 반짝여요.',
+      draw: c => `<defs><radialGradient id="${c.u}nj" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#FFE9F3"/><stop offset=".4" stop-color="#F7559A"/><stop offset="1" stop-color="#AE1A5C"/></radialGradient></defs>`
+        + [0, .08, .16, .24, .32, .4, .6, .68, .76, .84, .92, 1].map((t, k) => { const p = collar(t); return k === 3 || k === 8 ? `<circle cx="${p[0]}" cy="${p[1]}" r="1.7" fill="#F7559A" stroke="#B93A68" stroke-width=".4"/>` : `<circle cx="${p[0]}" cy="${p[1]}" r="1.9" fill="#FFF8FB" stroke="#EBC3D4" stroke-width=".45"/><circle cx="${r2(p[0] - .6)}" cy="${r2(p[1] - .6)}" r=".55" fill="#fff"/>`; }).join('')
+        + `<circle cx="60" cy="95.6" r="1.7" fill="none" stroke="#E9A3B8" stroke-width="1"/><path d="${heart(60, 104.4, 8.8)}" fill="#F9D5E3" stroke="#E08FB0" stroke-width=".7"/><path d="${heart(60, 104.4, 7.4)}" fill="url(#${c.u}nj)" stroke="#9E1650" stroke-width=".6"/><path d="${heart(60, 104, 4.2)}" fill="none" stroke="#fff" stroke-width=".6" opacity=".45"/><ellipse cx="55.8" cy="100.6" rx="2" ry="1.1" transform="rotate(-35 55.8 100.6)" fill="#fff" opacity=".85"/>`
+        + `<path d="${sparkle(71.5, 99, 2.8)}" fill="#FFF3C4"/><path d="${sparkle(48, 110, 2)}" fill="#FFFFFF"/>` },
+    { id: 'n-goldbell', slot: 'neck', name: 'A+ 펜던트', en: 'A+ pendant', ach: 'streak', desc: '7일 연속으로 들른 단골손님에게 드리는 A+ 펜던트. 분홍 에나멜 위에 금빛 A+가 새겨져 있어요.',
+      draw: c => `<defs><radialGradient id="${c.u}na" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#FF9CC4"/><stop offset="1" stop-color="#D23A73"/></radialGradient></defs>`
+        + `<path d="M39 87 Q60 101 81 87" stroke="#D9A64B" stroke-width="1.7" fill="none" stroke-linecap="round"/><path d="M39 87 Q60 101 81 87" stroke="#FFF1BF" stroke-width=".7" fill="none" stroke-dasharray="1.2 1.3"/>`
+        + `<rect x="58.4" y="93" width="3.2" height="4.2" rx="1.2" fill="#E8C15A" stroke="#B8862E" stroke-width=".5"/>`
+        + `<circle cx="60" cy="105" r="9" fill="#E8C15A" stroke="#B8862E" stroke-width=".9"/><circle cx="60" cy="105" r="8" fill="none" stroke="#F6DF95" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/><circle cx="60" cy="105" r="6.6" fill="url(#${c.u}na)" stroke="#B8862E" stroke-width=".5"/>`
+        + `<text x="60" y="108.6" text-anchor="middle" font-size="9.4" font-weight="800" fill="#FFF3C4" stroke="#B8862E" stroke-width=".35" paint-order="stroke" font-family="${DISP}">A+</text><path d="M55.4 101.4 q1.8 -2 4.4 -2.2" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".7"/>`
+        + `<path d="${sparkle(71, 98.5, 2.6)}" fill="#FFF3C4"/><path d="${sparkle(49, 111, 1.8)}" fill="#FFFFFF"/>` },
 
     /* 옷 */
     { id: 'o-none', slot: 'outfit', name: '맨몸', price: 0 },
@@ -257,6 +283,7 @@
       `<defs><clipPath id="${c.u}h"><ellipse cx="60" cy="58" rx="37" ry="32"/></clipPath><clipPath id="${c.u}b"><path d="${TORSO}"/></clipPath>${f.defs ? f.defs(c) : ''}</defs>`,
       hasSeat ? layer(seat, 'back', c) : `<ellipse cx="60" cy="132" rx="34" ry="5" fill="rgba(71,32,58,.10)"/>`,
       layer(held, 'back', c),
+      layer(hat, 'back', c),
       tail(f),
       `<path d="${TORSO}" fill="${f.body || f.head}"/>`,
       f.chest ? f.chest(c) : '',

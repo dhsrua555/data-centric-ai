@@ -72,6 +72,8 @@
   const owns = it => !!it && (it.ach ? achDone(it.ach) : (!it.price || !!P.owned[it.id]));
   function look() { const L = N.norm(P.look); Object.keys(L).forEach(s => { if (!owns(N.BY[L[s]])) L[s] = N.DEFAULT[s]; }); return L; }
   const catArt = () => N.render(look(), { label: '컨시어지 고양이 냥' });
+  // 컨시어지 냥 + 말풍선. 냥 발밑에 옷장으로 가는 꼬리표
+  const concierge = (bubble, cls, style) => `<div class="concierge ${cls || ''}"${style ? ` style="${style}"` : ''}><div class="cat-col"><div class="cat" role="button" tabindex="0" aria-label="냥 쓰다듬기">${catArt()}</div><a class="cat-tag" href="#/boutique">${ART.hanger}${/big/.test(cls || '') ? '<span class="ct-long">옷 갈아입히기</span><span class="ct-short">옷장</span>' : '옷장'}</a></div><div class="bubble"><span class="who">Concierge · 냥</span>${bubble}</div></div>`;
   const ghostStamp = () => `<span class="ghost-stamp" aria-hidden="true">${N.stamp(look().stamp)}</span>`;
   function stampHTML(cls, pop) {
     const dots = pop && !reduced ? `<span class="ink-dots">${[0, 60, 120, 180, 240, 300].map(a => `<i style="--a:${a + 15}deg"></i>`).join('')}</span>` : '';
@@ -86,11 +88,29 @@
     });
     save();
   }
-  function refreshWallet() { $$('[data-coins]').forEach(e => { e.textContent = P.coins; }); }
+  // 지금 가진 냥으로 살 수 있는 아이템 수 (옷장 버튼 배지)
+  const affordable = () => N.ITEMS.filter(it => it.price && !owns(it) && it.price <= P.coins).length;
+  const miniCat = () => N.render(look(), { crop: '15 2 90 80' });
+  function itemThumb(it) {
+    if (it.slot === 'stamp') return N.stamp(it.id);
+    const base = { fur: look().fur, hat: 'h-none' }; base[it.slot] = it.id;
+    return N.render(base, { crop: N.SLOTS.find(x => x.id === it.slot).crop });
+  }
+  let lastAfford = null;
+  function refreshCloset() {
+    const nc = $('.nav-closet'); if (!nc) return;
+    $('.nc-cat', nc).innerHTML = miniCat();
+    const n = affordable(), dot = $('.nc-dot', nc);
+    dot.hidden = !n; dot.textContent = n > 9 ? '9+' : String(n);
+    nc.title = n ? `지금 살 수 있는 아이템 ${n}개` : '냥의 옷장';
+    if (lastAfford !== null && n > lastAfford && cur.kind !== 'boutique') toast(`새 아이템을 살 수 있어요! <a href="#/boutique">옷장 가기 →</a>`);
+    lastAfford = n;
+  }
+  function refreshWallet() { $$('[data-coins]').forEach(e => { e.textContent = P.coins; }); refreshCloset(); }
   function coinFx(n, anchor) {
     refreshWallet();
     if (!n) return;
-    const pill = $('.nav-coin');
+    const pill = $('.nav-closet');
     if (pill) { pill.classList.remove('bump'); void pill.offsetWidth; pill.classList.add('bump'); }
     if (reduced) return;
     const r = (anchor || pill || document.body).getBoundingClientRect();
@@ -139,6 +159,7 @@
     icoPoints: `<svg viewBox="0 0 44 44" aria-hidden="true"><rect x="6" y="8" width="32" height="30" rx="4" fill="#F6BFD2"/><rect x="6" y="8" width="32" height="8" fill="#F1A6C0"/><path d="M12 22h20M12 28h20M12 34h12" stroke="#47203A" stroke-width="2" stroke-linecap="round"/><circle cx="34" cy="10" r="6" fill="#C43A45"/></svg>`,
     icoCards: `<svg viewBox="0 0 44 44" aria-hidden="true"><rect x="12" y="6" width="26" height="30" rx="4" fill="#DCCBF2" transform="rotate(8 25 21)"/><rect x="6" y="10" width="26" height="30" rx="4" fill="#FFF9F4" stroke="#47203A" stroke-width="1.5"/><path d="M12 20h14M12 26h10" stroke="#D6487D" stroke-width="2" stroke-linecap="round"/></svg>`,
     icoExam: `<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="17" fill="#BFE6D6"/><path d="M22 10v12l8 5" stroke="#47203A" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="22" cy="22" r="2" fill="#D6487D"/></svg>`,
+    hanger: `<svg class="hanger" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 5.6 a2.4 2.4 0 1 1 3.2 2.3 c-.5 .2 -.8 .6 -.8 1.1 v.6 M12 9.6 L3.3 15.4 c-1 .7 -.5 2.1 .7 2.1 h16 c1.2 0 1.7 -1.4 .7 -2.1 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     sakura: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2 3 2 6 0 8c-2-2-2-5 0-8zm7 5c-1 3-4 5-7 4c1-3 4-5 7-4zm-2 9c-3 0-6-2-6-5c3 0 6 2 6 5zm-10 0c0-3 3-5 6-5c0 3-3 5-6 5zM5 8c3-1 6 1 7 4c-3 1-6-1-7-4z" fill="#F1A6C0"/><circle cx="12" cy="12" r="1.6" fill="#D9A64B"/></svg>`
   };
 
@@ -150,7 +171,7 @@
     nav.innerHTML = `
       <div class="nav-head">
         <a class="nav-logo" href="#/" aria-label="프런트로">${ART.key}<span><b>Grand Data Hotel</b><small>Data-Centric AI</small></span></a>
-        <div class="nav-right"><a class="nav-coin" href="#/boutique" aria-label="보유한 냥, 냥의 옷장으로">${ART.coin}<b data-coins>${P.coins}</b></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-panel"><span class="lbl">Menu</span><span class="ico"><i></i><i></i></span></button></div>
+        <div class="nav-right"><a class="nav-closet" href="#/boutique" aria-label="냥의 옷장"><span class="nc-cat" aria-hidden="true"></span><span class="nc-t">옷장</span><span class="nc-coin">${ART.coin}<b data-coins>${P.coins}</b></span><i class="nc-dot" hidden></i></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-panel"><span class="lbl">Menu</span><span class="ico"><i></i><i></i></span></button></div>
       </div>
       <div class="nav-panel" id="nav-panel"><div><div class="nav-panel-in">
         <div class="nav-prog"><div class="omamori" aria-hidden="true"><span class="str"></span><span class="body"></span></div>
@@ -162,6 +183,7 @@
           <div class="nav-links">${H.floors.map(f => `<a href="#/points/${f.n}">${f.n}F 족보</a>`).join('')}<a href="#/cards">플래시카드</a><a href="#/exam">모의고사</a><a href="#/guide">시험 안내</a><a href="#/boutique">냥의 옷장</a><a href="#/" data-goto="guide">이용 안내</a></div>
         </div>
       </div></div></div>`;
+    refreshCloset();
     const tg = $('.nav-toggle', nav);
     tg.addEventListener('click', () => { const open = nav.classList.toggle('open'); tg.setAttribute('aria-expanded', String(open)); });
     $$('a', nav).forEach(a => a.addEventListener('click', () => { nav.classList.remove('open'); tg.setAttribute('aria-expanded', 'false'); }));
@@ -232,6 +254,7 @@
   /* ---------- 라우팅 · 전환 ---------- */
   const stage = $('#stage');
   let cur = { kind: 'none', floor: null, i: -1 };
+  let backTo = null; // 옷장에서 돌아갈 공부 화면
   function parse() {
     const h = (location.hash || '#/').replace(/^#\/?/, '');
     const p = h.split('/').filter(Boolean);
@@ -242,7 +265,7 @@
     if (p[0] === 'cards') return { kind: 'cards', floor: p[1] ? Number(p[1]) : null };
     if (p[0] === 'exam') return { kind: 'exam', mode: p[1] === 'real' || p[1] === 'quick' ? p[1] : null };
     if (p[0] === 'guide') return { kind: 'guide' };
-    if (p[0] === 'boutique') return { kind: 'boutique', tab: p[1] };
+    if (p[0] === 'boutique') return { kind: 'boutique', tab: p[1], pick: p[2] };
     return { kind: 'home' };
   }
   function transitionFor(prev, next) {
@@ -256,6 +279,7 @@
   let navSeq = 0;
   function go() {
     const next = parse();
+    if (next.kind !== 'boutique') backTo = { hash: location.hash || '#/', kind: next.kind, label: pageTitle(next) };
     const tr = transitionFor(cur, next);
     const seq = ++navSeq;
     const old = $('.page', stage);
@@ -308,16 +332,34 @@
     const canBuy = shop.filter(it => it.price <= P.coins).length;
     if (canBuy && d) hello += ` <a class="bubble-link" href="#/boutique">지금 가진 ${P.coins}냥이면 부티크에서 새 아이템을 살 수 있어요 →</a>`;
     const goal = canBuy ? `지금 살 수 있는 아이템 <b>${canBuy}개</b>` : shop.length ? `다음 목표 · ${esc(shop[0].name)} <b>${shop[0].price - P.coins}냥</b> 남음` : '모든 아이템을 모았어요!';
+    // 쇼윈도: 지금 살 수 있는 것 · 다음 목표 · 최고가와 업적 아이템
+    const show = [], add = it => { if (it && !owns(it) && !show.includes(it) && show.length < 4) show.push(it); };
+    add(shop.filter(it => it.price <= P.coins).pop()); add(shop.find(it => it.price > P.coins));
+    ['h-tiara', 'o-princess', 'h-crown'].forEach(id => add(N.BY[id])); shop.slice().reverse().forEach(add);
     return `
       <section class="hero"><div class="sprinkles" aria-hidden="true"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span><span class="star s1"></span><span class="star s2"></span><span class="star s3"></span><span class="star s4"></span></div><div class="wrap hero-in">
         <div class="hero-txt">
           <p class="eyebrow rv"><span class="dot"></span>Data-Centric AI · Lecture 1–4 · 시험 대비 스터디</p>
           <h1 class="display rv">Grand <em>Data</em><br>Hotel</h1>
           <p class="lede words">데이터가 모델을 만듭니다. 서론부터 로지스틱 회귀까지, 4개 층 ${t}개 객실. 한 객실에는 개념 하나만 두었어요.</p>
-          <div class="cta rv"><a class="btn hi" href="#/room/${nr.id}">${d ? '이어서 공부하기' : '체크인 하기'} <span class="k">${esc(nr.code)}</span></a><a class="btn" href="#/floor/1">층 안내 보기</a></div>
+          <div class="cta rv"><a class="btn hi" href="#/room/${nr.id}">${d ? '이어서 공부하기' : '체크인 하기'} <span class="k">${esc(nr.code)}</span></a><a class="btn pink" href="#/boutique">${ART.hanger}냥의 옷장 <span class="k">${ART.coin}<b data-coins>${P.coins}</b></span></a><a class="btn" href="#/floor/1">층 안내 보기</a></div>
           <div class="scroll-hint rv"><i></i>Scroll to discover</div>
         </div>
-        <div class="hero-art rv"><div class="concierge big"><div class="cat" role="button" tabindex="0" aria-label="냥 쓰다듬기">${catArt()}</div><div class="bubble"><span class="who">Concierge · 냥</span>${hello}</div></div></div>
+        <div class="hero-art rv">${concierge(hello, 'big')}</div>
+      </div></section>
+
+      <section class="sec sec-closet"><div class="wrap">
+        <div class="promo rv">
+          <a class="promo-cat" href="#/boutique" aria-label="냥의 옷장으로">${catArt()}</a>
+          <div class="promo-txt">
+            <p class="eyebrow">Boutique · 냥의 옷장</p>
+            <h2 class="h-sec">공부한 만큼 냥이 쌓여요</h2>
+            <p>도장 하나에 20냥, 퀵 체크 정답 하나에 5냥, 층을 다 돌면 50냥. 모은 냥으로 컨시어지 냥에게 모자·옷·소품을 사 주세요. 고른 차림은 사이트 곳곳의 냥이 그대로 입고 나와요.</p>
+            <div class="promo-meta"><span class="wallet-chip">${ART.coin}<b data-coins>${P.coins}</b>냥</span><span>${goal}</span></div>
+            ${show.length ? `<div class="showcase" aria-label="쇼윈도">${show.map(it => `<a class="sw-item${!it.ach && it.price <= P.coins ? ' can' : ''}${it.slot === 'stamp' ? ' is-stamp' : ''}" href="#/boutique/${it.slot}/${it.id}"><span class="th">${itemThumb(it)}</span><span class="nm">${esc(it.name)}</span><span class="pr">${it.ach ? `${ART.lock}업적` : it.price <= P.coins ? `${ART.coin}${it.price} · 살 수 있어요` : `${ART.coin}${it.price}`}</span></a>`).join('')}</div>` : ''}
+            <div><a class="btn pink" href="#/boutique">${ART.hanger}옷장 열기</a></div>
+          </div>
+        </div>
       </div></section>
 
       <section class="sec"><div class="wrap">
@@ -339,19 +381,6 @@
           <a class="desk-card rv" href="#/cards"><span class="tape lilac"></span><span class="ico">${ART.icoCards}</span><h3>플래시카드</h3><p>용어·정의·공식을 카드로 뒤집어 보며 확인해요. "다시"를 누른 카드만 다시 나와요.</p><span class="go">${H.cards.length} cards</span></a>
           <a class="desk-card rv" href="#/exam"><span class="tape"></span><span class="ico">${ART.icoExam}</span><h3>모의고사</h3><p>작년 형식 그대로의 <b>실전형(100점, 영어)</b>과 객관식 20문 <b>빠른 모의고사</b>. 틀린 문제는 해당 객실로 바로 연결돼요.</p><span class="go">${P.real.length ? '실전형 최고 ' + fmt(P.real.reduce((m, e) => Math.max(m, e.total || 0), 0)) + '점' : 'Real · Quick'}</span></a>
           <a class="desk-card rv" href="#/guide"><span class="tape gold"></span><span class="ico">${ART.mic}</span><h3>시험 안내 · 교수님 강조</h3><p>형식·배점·점수 전략, 그리고 녹음에서 교수님이 "시험"을 언급한 대목만 모았어요.</p><span class="go">Exam guide</span></a>
-        </div>
-      </div></section>
-
-      <section class="sec"><div class="wrap">
-        <div class="promo rv">
-          <a class="promo-cat" href="#/boutique" aria-label="냥의 옷장으로">${catArt()}</a>
-          <div class="promo-txt">
-            <p class="eyebrow">Boutique · 냥의 옷장</p>
-            <h2 class="h-sec">공부한 만큼 냥이 쌓여요</h2>
-            <p>도장 하나에 20냥, 퀵 체크 정답 하나에 5냥, 층을 다 돌면 50냥. 모은 냥으로 컨시어지 냥에게 모자·옷·소품을 사 주세요. 고른 차림은 사이트 곳곳의 냥이 그대로 입고 나와요.</p>
-            <div class="promo-meta"><span class="wallet-chip">${ART.coin}<b data-coins>${P.coins}</b>냥</span><span>${goal}</span></div>
-            <div><a class="btn pink" href="#/boutique">부티크 구경하기</a></div>
-          </div>
         </div>
       </div></section>
 
@@ -377,7 +406,7 @@
         <h1 class="display rv">${f.n}F <em>${esc(f.title)}</em></h1>
         <p class="motto rv">${esc(f.en)}</p>
         <div class="lobby-meta rv"><span>${f.rooms.length} rooms</span><span>${fd} done</span><a href="#/points/${f.n}" style="color:var(--fuchsia)">→ ${f.n}F 족보 보기</a></div>
-        <div class="concierge rv" style="margin-top:.6rem;max-width:720px"><div class="cat" role="button" tabindex="0" aria-label="냥 쓰다듬기">${catArt()}</div><div class="bubble"><span class="who">Concierge · 냥</span>${f.welcome}</div></div>
+        ${concierge(f.welcome, 'rv', 'margin-top:.6rem;max-width:720px')}
       </header>
       <div class="rooms">${f.rooms.map(r => {
         const done = !!P.done[r.id], q = P.quiz[r.id];
@@ -409,7 +438,7 @@
         <h1 class="h-room rv">${esc(r.title)}</h1>
         <p class="en rv">${esc(r.en)}</p>
       </header>
-      <div class="concierge rv"><div class="cat" role="button" tabindex="0" aria-label="냥 쓰다듬기">${catArt()}</div><div class="bubble"><span class="who">Concierge · 냥</span>${r.guide}</div></div>
+      ${concierge(r.guide, 'rv')}
       ${r.easy ? `<div class="easy rv"><span class="lbl">쉽게 말하면 · Plain words</span>${r.easy}</div>` : ''}
       <div class="room-body rv">${r.body}</div>
       ${lectureHTML(r)}
@@ -423,7 +452,7 @@
       <footer class="room-foot rv">
         <div class="done-row">
           <div class="stamp-slot">${done ? stampHTML() : ghostStamp()}</div>
-          <div class="txt"><b>${done ? '이 객실은 다 보셨어요' : P.earned['room:' + r.id] == null ? '다 보셨나요? 도장을 찍고 열쇠와 ' + REWARD.room + '냥을 받으세요' : '다 보셨나요? 도장을 찍어 열쇠를 받으세요'}</b><small>${done ? '도장을 다시 누르면 취소할 수 있어요.' : '한 번 더 보고 싶으면 언제든 돌아와도 괜찮아요.'}</small></div>
+          <div class="txt"><b>${done ? '이 객실은 다 보셨어요' : P.earned['room:' + r.id] == null ? '다 보셨나요? 도장을 찍고 열쇠와 ' + REWARD.room + '냥을 받으세요' : '다 보셨나요? 도장을 찍어 열쇠를 받으세요'}</b><small>${done ? `도장을 다시 누르면 취소할 수 있어요. <a class="closet-link" href="#/boutique">${ART.hanger}지금 ${P.coins}냥 · 옷장 가기</a>` : '한 번 더 보고 싶으면 언제든 돌아와도 괜찮아요.'}</small></div>
           <button class="btn ${done ? 'ghost' : 'pink'}" id="btn-done" type="button">${done ? '도장 취소' : '도장 찍기'}</button>
         </div>
         <div class="room-pager">
@@ -599,6 +628,7 @@
         <p class="eyebrow rv"><a href="#/" style="color:inherit;text-decoration:none">Front</a><span>›</span><span class="dot"></span>Boutique</p>
         <h1 class="display rv" style="font-size:clamp(2rem,5vw,3.4rem)">냥의 <em>옷장</em></h1>
         <p class="lede rv">공부하면 냥이 쌓여요. 아이템을 누르면 먼저 입혀 볼 수 있고, 마음에 들면 모은 냥으로 사 주세요. 고른 차림은 사이트 곳곳의 냥이 그대로 입고 나와요.</p>
+        ${backTo && backTo.kind !== 'home' ? `<div class="rv"><a class="btn sm back-study" href="${esc(backTo.hash)}">← 공부하던 곳으로 <small>${esc(backTo.label)}</small></a></div>` : ''}
       </header>
       <div class="bq rv">
         <section class="fit" aria-label="피팅룸">
@@ -671,7 +701,7 @@
         const got = grant('room:' + r.id, REWARD.room), bonus = floorComplete(f) ? grant('floor:' + f.n, REWARD.floor) : 0;
         save();
         slot.innerHTML = stampHTML('', true); btn.textContent = '도장 취소'; btn.className = 'btn ghost';
-        txt.innerHTML = `<b>열쇠 하나 획득!${got ? ' +' + got + '냥' : ''}</b><small>` + (r.next ? '다음 객실 ' + esc(r.next.code) + '로 가 볼까요?' : '마지막 객실이었어요. 모의고사로!') + '</small>';
+        txt.innerHTML = `<b>열쇠 하나 획득!${got ? ' +' + got + '냥' : ''}</b><small>` + (r.next ? '다음 객실 ' + esc(r.next.code) + '로 가 볼까요?' : '마지막 객실이었어요. 모의고사로!') + ` <a class="closet-link" href="#/boutique">${ART.hanger}지금 ${P.coins}냥 · 옷장 가기</a></small>`;
         if (got + bonus) setTimeout(() => coinFx(got + bonus, slot), reduced ? 0 : 380);
         if (floorComplete(f)) { petals(70); toast(`${f.n}F 전 객실 완료! 벚꽃이 떨어집니다 🌸${bonus ? ' 보너스 +' + bonus + '냥' : ''}`); }
         else { petals(22); toast(`Room ${r.code} 완료 · 열쇠 ${doneCount()}/${totalRooms()}${got ? ' · +' + got + '냥' : ''}`); }
@@ -759,11 +789,6 @@
     let tab = N.SLOTS.some(x => x.id === s.tab) ? s.tab : 'hat', sel = null, trial = look();
     const catEl = $('#fit-cat', sec), stEl = $('#fit-stamp', sec), info = $('#fit-info', sec), rack = $('#rack', sec);
     const state = it => look()[it.slot] === it.id ? 'on' : owns(it) ? 'owned' : it.ach ? 'locked' : 'shop';
-    function thumb(it) {
-      if (it.slot === 'stamp') return N.stamp(it.id);
-      const base = { fur: look().fur, hat: 'h-none' }; base[it.slot] = it.id;
-      return N.render(base, { crop: N.SLOTS.find(x => x.id === it.slot).crop });
-    }
     function tag(it, st) {
       if (st === 'on') return '<em class="t-on">착용 중</em>';
       if (st === 'owned') return '<em>보유</em>';
@@ -775,7 +800,7 @@
     function drawRack() {
       rack.innerHTML = N.ITEMS.filter(it => it.slot === tab).map(it => {
         const st = state(it);
-        return `<button type="button" class="tile ${st}${sel === it.id ? ' sel' : ''}${it.slot === 'stamp' ? ' is-stamp' : ''}" data-id="${it.id}" aria-pressed="${sel === it.id}"><span class="th">${thumb(it)}</span><span class="nm">${esc(it.name)}</span><span class="pr">${tag(it, st)}</span></button>`;
+        return `<button type="button" class="tile ${st}${sel === it.id ? ' sel' : ''}${it.slot === 'stamp' ? ' is-stamp' : ''}" data-id="${it.id}" aria-pressed="${sel === it.id}"><span class="th">${itemThumb(it)}</span><span class="nm">${esc(it.name)}</span><span class="pr">${tag(it, st)}</span></button>`;
       }).join('');
       $$('.tile', rack).forEach(b => b.addEventListener('click', () => pick(b.dataset.id)));
     }
@@ -814,6 +839,7 @@
     function drawAll() { drawFit(); drawInfo(); drawTabs(); drawRack(); }
     $$('.rack-tabs button', sec).forEach(b => b.addEventListener('click', () => { tab = b.dataset.slot; drawTabs(); drawRack(); }));
     drawAll();
+    if (s.pick && N.BY[s.pick] && N.BY[s.pick].slot === tab) pick(s.pick);
   }
 
   /* ---------- 플래시카드 ---------- */
