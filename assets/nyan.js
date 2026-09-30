@@ -101,7 +101,7 @@
       draw: () => `<path d="M44 31 V22 Q60 26 76 22 V31 Q60 35 44 31 Z" fill="#47203A"/><path d="M60 8 L91 17 L60 26 L29 17 Z" fill="#5A2E4B"/><path d="M60 8 L91 17 L60 19 L29 17 Z" fill="#6E3C5E"/><circle cx="60" cy="17" r="1.7" fill="#D9A64B"/><path d="M60 17 L85 19.5 L86.5 31" stroke="#D9A64B" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M84.6 30.5 h3.8 l1 7 h-5.8 z" fill="#D9A64B"/>` },
     { id: 'h-courtesan', slot: 'hat', name: '쿠르티잔 오 쇼콜라', en: 'Courtesan au chocolat', price: 200, desc: '멘들스의 명물, 3단 슈 과자. 라일락·분홍·민트 글레이즈에 카카오 한 알.',
       draw: () => `<ellipse cx="60" cy="28" rx="15.5" ry="8" fill="#EBC99E"/><ellipse cx="60" cy="25.5" rx="14.5" ry="6.4" fill="#CDB6EC"/><ellipse cx="60" cy="20.3" rx="9.5" ry="2.4" fill="#FFFDF9"/><ellipse cx="60" cy="16.8" rx="10" ry="5.6" fill="#EBC99E"/><ellipse cx="60" cy="15" rx="9.4" ry="4.6" fill="#F6BFD2"/><ellipse cx="60" cy="11" rx="6" ry="1.8" fill="#FFFDF9"/><circle cx="60" cy="8.2" r="5.2" fill="#EBC99E"/><ellipse cx="60" cy="7.2" rx="5" ry="3.9" fill="#BFE6D6"/><ellipse cx="60" cy="2.6" rx="1.6" ry="2.3" fill="#6B4331"/><path d="M50 23.5 q4 -2.4 8 -2.6 M53.5 13.6 q3 -1.6 5.5 -1.8" stroke="#fff" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round" fill="none"/>` },
-    { id: 'h-tiara', slot: 'hat', name: '핑크 하트 티아라', en: 'Pink heart tiara', price: 400, desc: '부티크에서 가장 비싼 보물. 하트 보석이 박힌 공주님 티아라예요. 꾸준히 모아야 살 수 있어요.',
+    { id: 'h-tiara', slot: 'hat', name: '핑크 하트 티아라', en: 'Pink heart tiara', price: 400, desc: '하트 보석이 박힌 공주님 티아라예요. 꾸준히 모아야 살 수 있어요.',
       draw: () => `<g transform="rotate(-4 60 26)"><path d="M43 30.5 Q60 24.5 77 30.5 L75.8 33.6 Q60 28 44.2 33.6 Z" fill="#E6E0EE" stroke="#B9AFC8" stroke-width=".7"/><path d="M44 30.6 Q45.5 22.5 50 27.2 Q52.5 16.5 57 23.6 Q60 9.5 63 23.6 Q67.5 16.5 70 27.2 Q74.5 22.5 76 30.6 Q60 25.2 44 30.6 Z" fill="#F7F4FA" stroke="#B9AFC8" stroke-width=".8" stroke-linejoin="round"/><path d="${heart(60, 21.4, 3.8)}" fill="#E0457F" stroke="#B93A68" stroke-width=".6"/><circle cx="58.8" cy="20" r=".9" fill="#fff" opacity=".8"/><circle cx="50.2" cy="26.4" r="1.5" fill="#F6BFD2"/><circle cx="69.8" cy="26.4" r="1.5" fill="#F6BFD2"/><circle cx="60" cy="11.4" r="1.6" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".5"/><circle cx="52.3" cy="17.6" r="1.1" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".4"/><circle cx="67.7" cy="17.6" r="1.1" fill="#FFFFFF" stroke="#D9CFE4" stroke-width=".4"/><path d="M82 15 l1 2.4 l2.4 1 l-2.4 1 l-1 2.4 l-1 -2.4 l-2.4 -1 l2.4 -1 z" fill="#F6DF95"/><path d="M37 19 l.7 1.6 l1.6 .7 l-1.6 .7 l-.7 1.6 l-.7 -1.6 l-1.6 -.7 l1.6 -.7 z" fill="#F6BFD2"/></g>` },
     { id: 'h-crown', slot: 'hat', name: '핑크 다이아 왕관', en: 'Pink diamond crown', ach: 'crown', desc: '빠른 모의고사 만점자에게만 주어지는 왕관. 로즈골드 틀에 하트 다이아와 진주를 두르고, 머리 위로 분홍빛 후광이 반짝여요.',
       draw: {
@@ -212,6 +212,29 @@
       draw: {
         back: () => `<ellipse cx="60" cy="135.4" rx="44" ry="2.8" fill="rgba(71,32,58,.12)"/><path d="M20 108 L28 99 H92 L100 108 Z" fill="#E48DAE"/>`,
         front: () => `<rect x="20" y="108" width="80" height="27" rx="2" fill="#F6BFD2"/><rect x="20" y="108" width="80" height="3" fill="#F1A6C0"/><rect x="72" y="108" width="7" height="27" fill="#8FB3DE"/><text x="45" y="126.6" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="600" font-size="9" fill="#5B7DB8">Mendl's</text>`
+      } },
+
+    { id: 's-throne', slot: 'seat', name: '핑크 왕좌', en: 'Pink throne', price: 500, crop: '0 0 120 138', pawY: 121.5, desc: '부티크에서 가장 비싼 보물. 하트 보석을 얹은 로즈골드 틀에 퀼팅한 분홍 벨벳, 진주 테두리까지. 여기 앉아 공부하면 A+도 따라와요.',
+      draw: {
+        back: c => {
+          let tuft = '';
+          for (let k = -8; k <= 6; k++) { const a = -36 + 16 * k, b = 84 + 16 * k; tuft += `M0 ${a} L120 ${a + 120} M0 ${b} L120 ${b - 120} `; }
+          let btn = '';
+          for (let i = -8; i <= 6; i++) for (let j = -8; j <= 6; j++) { const a = -36 + 16 * i, b = 84 + 16 * j, x = (b - a) / 2, y = (b + a) / 2; if (x > 10 && x < 110 && y > 8 && y < 122) btn += `<circle cx="${x}" cy="${y}" r="1.2" fill="#FFD9E8" stroke="#B93A68" stroke-width=".35"/>`; }
+          const IN = 'M15 122 V45 C15 24 35 11 60 11 C85 11 105 24 105 45 V122 Z';
+          return `<defs><linearGradient id="${c.u}tf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE6F0"/><stop offset=".5" stop-color="#F4A3C4"/><stop offset="1" stop-color="#E07AA6"/></linearGradient><linearGradient id="${c.u}tv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F585B6"/><stop offset="1" stop-color="#D6487D"/></linearGradient><radialGradient id="${c.u}tj" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#FFE9F3"/><stop offset=".4" stop-color="#F7559A"/><stop offset="1" stop-color="#AE1A5C"/></radialGradient><clipPath id="${c.u}tc"><path d="${IN}"/></clipPath></defs>`
+            + `<ellipse cx="60" cy="136.6" rx="52" ry="2" fill="rgba(71,32,58,.12)"/>`
+            + `<path d="M9 124 V44 C9 18 32 5 60 5 C88 5 111 18 111 44 V124 Z" fill="url(#${c.u}tf)" stroke="#C94A82" stroke-width=".8"/>`
+            + `<path d="${IN}" fill="url(#${c.u}tv)"/><g clip-path="url(#${c.u}tc)"><path d="${tuft.trim()}" stroke="#B83A70" stroke-width=".6" opacity=".55"/>${btn}</g>`
+            + `<path d="${IN}" fill="none" stroke="#FFF8FB" stroke-width="1.5" stroke-dasharray=".1 3" stroke-linecap="round"/>`
+            + `<path d="M55.4 7 C51 2.6 44.6 2.8 43.9 6.8 C43.5 9.2 46.4 10 47.4 8.2 M64.6 7 C69 2.6 75.4 2.8 76.1 6.8 C76.5 9.2 73.6 10 72.6 8.2" stroke="#E8C15A" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="40" cy="8.6" r="1.3" fill="#FFF8FB" stroke="#EDB8CF" stroke-width=".4"/><circle cx="80" cy="8.6" r="1.3" fill="#FFF8FB" stroke="#EDB8CF" stroke-width=".4"/><path d="${heart(60, 7.4, 4.8)}" fill="url(#${c.u}tj)" stroke="#E8C15A" stroke-width=".9"/><ellipse cx="58" cy="5.6" rx="1.3" ry=".8" fill="#fff" opacity=".85"/>`
+            + `<circle cx="14" cy="28" r="2.4" fill="#FFF8FB" stroke="#EDB8CF" stroke-width=".5"/><circle cx="106" cy="28" r="2.4" fill="#FFF8FB" stroke="#EDB8CF" stroke-width=".5"/>`
+            + `<rect x="13" y="112" width="94" height="14" rx="7" fill="#F9B8D0" stroke="#E68AAE" stroke-width=".6"/><path d="M20 115.5 H100" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".6"/>`
+            + [[5, 8], [89, 112]].map(([x, sx]) => `<path d="M${x + 5} 104 H${x + 21} L${x + 19} 127 H${x + 7} Z" fill="url(#${c.u}tf)" stroke="#C94A82" stroke-width=".6"/><rect x="${x}" y="95" width="26" height="10" rx="5" fill="url(#${c.u}tv)" stroke="#E8C15A" stroke-width=".8"/><circle cx="${sx}" cy="100" r="4.4" fill="url(#${c.u}tf)" stroke="#C94A82" stroke-width=".6"/><path d="${heart(sx, 100.2, 1.8)}" fill="#F7559A"/>`).join('');
+        },
+        front: c => `<circle cx="18" cy="135.4" r="2.4" fill="#E8C15A" stroke="#B8862E" stroke-width=".5"/><circle cx="102" cy="135.4" r="2.4" fill="#E8C15A" stroke="#B8862E" stroke-width=".5"/>`
+          + `<path d="M11 124 H109 L107 132.6 Q60 136.4 13 132.6 Z" fill="url(#${c.u}tv)"/><path d="M11 124.7 H109" stroke="#E8C15A" stroke-width="1.6"/><path d="M14 133 Q60 136.8 106 133" stroke="#F6DF95" stroke-width="2" stroke-dasharray=".1 3" stroke-linecap="round" fill="none"/>`
+          + `<circle cx="60" cy="129.2" r="4" fill="#E8C15A" stroke="#B8862E" stroke-width=".5"/><path d="${heart(60, 129.3, 2.6)}" fill="url(#${c.u}tj)"/><path d="${sparkle(96, 118, 2.6)} ${sparkle(25, 116, 2)}" fill="#FFF3C4"/>`
       } },
 
     /* 털색 */

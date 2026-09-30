@@ -94,7 +94,7 @@
   function itemThumb(it) {
     if (it.slot === 'stamp') return N.stamp(it.id);
     const base = { fur: look().fur, hat: 'h-none' }; base[it.slot] = it.id;
-    return N.render(base, { crop: N.SLOTS.find(x => x.id === it.slot).crop });
+    return N.render(base, { crop: it.crop || N.SLOTS.find(x => x.id === it.slot).crop });
   }
   let lastAfford = null;
   function refreshCloset() {
@@ -335,7 +335,7 @@
     // 쇼윈도: 지금 살 수 있는 것 · 다음 목표 · 최고가와 업적 아이템
     const show = [], add = it => { if (it && !owns(it) && !show.includes(it) && show.length < 4) show.push(it); };
     add(shop.filter(it => it.price <= P.coins).pop()); add(shop.find(it => it.price > P.coins));
-    ['h-tiara', 'o-princess', 'h-crown'].forEach(id => add(N.BY[id])); shop.slice().reverse().forEach(add);
+    ['s-throne', 'o-princess', 'h-tiara', 'h-crown'].forEach(id => add(N.BY[id])); shop.slice().reverse().forEach(add);
     return `
       <section class="hero"><div class="sprinkles" aria-hidden="true"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span><span class="star s1"></span><span class="star s2"></span><span class="star s3"></span><span class="star s4"></span></div><div class="wrap hero-in">
         <div class="hero-txt">
