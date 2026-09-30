@@ -66,10 +66,15 @@
     points: () => { const ks = pointKeys(); return [ks.filter(k => P.checks[k]).length, ks.length]; },
     streak: () => [Math.min((P.visit && P.visit.best) || 0, 7), 7],
     quizall: () => { const ids = IDX.order.filter(id => (IDX.rooms[id].quiz || []).length); return [ids.filter(id => P.quiz[id] && P.quiz[id].ok === P.quiz[id].n).length, ids.length]; },
-    mock90: () => [Math.min(P.real.reduce((m, e) => Math.max(m, e.total || 0), 0), 90), 90]
+    mock90: () => [Math.min(P.real.reduce((m, e) => Math.max(m, e.total || 0), 0), 90), 90],
+    drillall: () => {
+      const n = id => ((H.drill || {})[id] || []).filter(q => q.t !== 'short').length, ids = IDX.order.filter(id => n(id));
+      return [ids.filter(id => P.drill[id] && P.drill[id].n === n(id) && P.drill[id].ok === n(id)).length, ids.length];
+    }
   };
   const achDone = a => { const p = ACHP[a](); return p[0] >= p[1]; };
-  const owns = it => !!it && (it.ach ? achDone(it.ach) : (!it.price || !!P.owned[it.id]));
+  // 업적 아이템은 한 번 열리면(earned) 기록이 내려가도 계속 보유. 판매하다 업적으로 바뀐 것(별 요술봉)은 이미 산 사람에게 남긴다
+  const owns = it => !!it && (it.ach ? P.earned['ach:' + it.ach] != null || achDone(it.ach) || !!P.owned[it.id] : (!it.price || !!P.owned[it.id]));
   function look() { const L = N.norm(P.look); Object.keys(L).forEach(s => { if (!owns(N.BY[L[s]])) L[s] = N.DEFAULT[s]; }); return L; }
   const catArt = () => N.render(look(), { label: '컨시어지 고양이 냥' });
   // 컨시어지 냥 + 말풍선. 냥 발밑에 옷장으로 가는 꼬리표
@@ -685,6 +690,7 @@
           if (got) coinFx(got, sc);
           if (ok === qs.length) toast('퀵 체크 만점! ' + ART.sakura.replace('<svg', '<svg style="width:16px;height:16px;vertical-align:-3px"') + (got ? ` +${got}냥` : ''));
           else if (got) toast(`퀵 체크 ${ok}/${qs.length} · +${got}냥`);
+          checkAch();
         }
       }));
     });
@@ -753,6 +759,7 @@
       const sc = $('#dscore', box); if (sc) sc.textContent = `이번 결과 ${ok}/${auto.length}` + (got ? ` · +${got}냥` : '');
       if (got) coinFx(got, sc);
       toast(`실전 연습 ${ok}/${auto.length}` + (got ? ` · +${got}냥` : '') + (ok === auto.length ? ' · 영어 문제도 완벽!' : ''));
+      checkAch();
     };
     items.forEach(d => {
       if (d.dataset.t === 'tf') {
