@@ -23,6 +23,10 @@
 <script src="../data/easy.js"></script>
 <script src="../data/exam.js"></script>
 <script src="../data/lecture.js"></script>
+<script src="../data/deep1.js"></script>
+<script src="../data/deep2.js"></script>
+<script src="../data/deep3.js"></script>
+<script src="../data/deep4.js"></script>
 <script src="../assets/nyan.js"></script>
 <script>
 (function () {
@@ -101,6 +105,19 @@
   if ((Wr.scenarios || []).length < 8 || (Wr.long || []).length < 1) { log('WRITTEN bank too small'); bad++; }
   const allDrill = Object.values(H.drill || {}).flat();
   if (allDrill.filter(q => q.t === 'tf').length < 10 || allDrill.filter(q => q.t === 'multi').length < 4) { log('DRILL bank too small for real exam'); bad++; }
+  // 차근차근 이해하기: 모든 객실에 있고, 단계 3개 이상, 수식이 깨지지 않을 것
+  let deepN = 0, deepSteps = 0;
+  roomIds.forEach(id => { if (!(H.deep || {})[id]) { log('DEEP missing ' + id); bad++; } });
+  Object.keys(H.deep || {}).forEach(id => {
+    const d = H.deep[id], w = 'deep ' + id; deepN++;
+    if (!roomIds.has(id)) { log('DEEP bad room ' + id); bad++; }
+    if (!d.goal || !d.sum || !d.exam || !Array.isArray(d.steps) || d.steps.length < 3 || d.steps.some(s => !s[0] || !s[1])) { log('DEEP incomplete ' + w); bad++; }
+    if (d.ex && (!d.ex.q || !d.ex.a)) { log('DEEP bad example ' + w); bad++; }
+    (d.mix || []).forEach((m, k) => { if (!m[0] || !m[1]) { log('DEEP bad mix ' + w + ':' + k); bad++; } });
+    deepSteps += (d.steps || []).length;
+    kx([d.goal, d.exam, d.sum, d.ex && d.ex.q, d.ex && d.ex.a].concat((d.steps || []).map(s => s[0] + ' ' + s[1]), (d.mix || []).map(m => m[0] + ' ' + m[1])).join(' '), w);
+  });
+  log('deep rooms=' + deepN + ' steps=' + deepSteps);
   log('lecture notes=' + lecN + ' drill=' + drillN + ' (tf ' + allDrill.filter(q => q.t === 'tf').length + ', multi ' + allDrill.filter(q => q.t === 'multi').length + ', short ' + allDrill.filter(q => q.t === 'short').length + ') scenarios=' + (Wr.scenarios || []).length + ' long=' + (Wr.long || []).length);
 
   // 냥 꾸미기: 아이템 · 털색 조합 · 도장

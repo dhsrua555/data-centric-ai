@@ -418,7 +418,7 @@
         return `<a class="key-tag rv ${done ? 'done' : ''}" href="#/room/${r.id}"><span class="perf"></span>
           <div class="kn"><span>Room ${r.code}</span><span class="hole"></span></div>
           <div><h3>${esc(r.title)}</h3><span class="en ken">${esc(r.en)}</span></div>
-          <div class="km"><span>slides ${esc(r.slides)} · ${r.mins || 4} min</span>${q ? `<span class="${q.ok === q.n ? 'quizok' : ''}">quiz ${q.ok}/${q.n}</span>` : ''}</div>
+          <div class="km"><span>slides ${esc(r.slides)} · ${roomMins(r)} min</span>${q ? `<span class="${q.ok === q.n ? 'quizok' : ''}">quiz ${q.ok}/${q.n}</span>` : ''}</div>
           ${done ? stampHTML() : ''}</a>`;
       }).join('')}</div>
       <div class="room-pager" style="margin-top:2rem">
@@ -439,13 +439,14 @@
           <div class="crumbs"><a href="#/">Front</a><span>›</span><a href="#/floor/${f.n}">${f.n}F ${esc(f.title)}</a><span>›</span><span>Room ${r.code}</span></div>
           <div class="pager">${prev ? `<a class="btn ghost sm" href="#/room/${prev.id}" aria-label="이전 객실">←</a>` : ''}${next ? `<a class="btn ghost sm" href="#/room/${next.id}" aria-label="다음 객실">→</a>` : ''}</div>
         </div>
-        <p class="eyebrow rv"><span class="dot"></span>Room ${r.code}<span>·</span>${esc(f.lecture)} slides ${esc(r.slides)}<span>·</span>약 ${r.mins || 4}분</p>
+        <p class="eyebrow rv"><span class="dot"></span>Room ${r.code}<span>·</span>${esc(f.lecture)} slides ${esc(r.slides)}<span>·</span>약 ${roomMins(r)}분</p>
         <h1 class="h-room rv">${esc(r.title)}</h1>
         <p class="en rv">${esc(r.en)}</p>
       </header>
       ${concierge(r.guide, 'rv')}
       ${r.easy ? `<div class="easy rv"><span class="lbl">쉽게 말하면 · Plain words</span>${r.easy}</div>` : ''}
-      <div class="room-body rv">${r.body}</div>
+      ${deepHTML(r)}
+      <div class="room-body rv">${deepOf(r) ? '<p class="body-lbl">슬라이드 정리 · 그림과 공식</p>' : ''}${r.body}</div>
       ${lectureHTML(r)}
       <aside class="mendl-box rv" aria-label="시험 포인트">${ART.bow.replace('<svg', '<svg class="bow"')}
         <h2>시험 포인트 <span class="chip">Mendl's box</span></h2>
@@ -468,6 +469,28 @@
       </footer>
     </article></div>`;
   };
+
+  /* 차근차근 이해하기: 비유와 슬라이드 사이를 잇는 단계별 설명 (data/deep*.js) */
+  const deepOf = r => (H.deep || {})[r.id];
+  const minsCache = {};
+  function roomMins(r) {
+    if (minsCache[r.id] != null) return minsCache[r.id];
+    const d = deepOf(r);
+    const len = d ? [d.goal, d.exam, d.sum, d.ex && d.ex.q, d.ex && d.ex.a].concat((d.steps || []).map(s => s[1]), (d.mix || []).map(m => m[0] + m[1])).join('').replace(/<[^>]+>|\$[^$]*\$/g, '').length : 0;
+    return (minsCache[r.id] = (r.mins || 4) + (len ? Math.max(2, Math.round(len / 650)) : 0));
+  }
+  function deepHTML(r) {
+    const d = deepOf(r);
+    if (!d) return '';
+    return `<section class="study rv" aria-label="차근차근 이해하기">
+      <div class="dp-head"><p class="dp-lbl">차근차근 이해하기 · Step by step</p>${d.goal ? `<p class="dp-goal"><b>이 객실을 마치면</b>${d.goal}</p>` : ''}</div>
+      <ol class="dp-steps">${(d.steps || []).map((s, i) => `<li class="dp-step"><span class="dp-n" aria-hidden="true">${i + 1}</span><div class="dp-b"><h3>${s[0]}</h3>${s[1]}</div></li>`).join('')}</ol>
+      ${d.ex ? `<div class="dp-box dp-ex"><p class="dp-t">예제로 확인</p><div class="dp-q">${d.ex.q}</div><details><summary>풀이 보기</summary><div class="dp-a">${d.ex.a}</div></details></div>` : ''}
+      ${d.exam ? `<div class="dp-box dp-exam"><p class="dp-t">시험에서는</p>${d.exam}</div>` : ''}
+      ${d.mix && d.mix.length ? `<div class="dp-box dp-mix"><p class="dp-t">헷갈리기 쉬운 것</p><ul>${d.mix.map(m => `<li><span class="dp-x"><i aria-label="헷갈린 생각">✗</i><span>${m[0]}</span></span><span class="dp-o"><i aria-label="바른 이해">✓</i><span>${m[1]}</span></span></li>`).join('')}</ul></div>` : ''}
+      ${d.sum ? `<p class="dp-sum"><b>한 문장 정리</b>${d.sum}</p>` : ''}
+    </section>`;
+  }
 
   /* 교수님 강의 노트 · 실전 연습(영어) */
   const LN_TAG = { exam: '시험 언급', key: '강조', trap: '함정 주의', story: '예시' };

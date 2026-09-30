@@ -1,0 +1,206 @@
+/* 4F 차근차근 이해하기 — 분류와 로지스틱 회귀 (Lecture 4는 녹음이 없어 슬라이드와 ISLR 기준) */
+(function () {
+  const R = String.raw;
+  const H = window.HOTEL = window.HOTEL || {};
+  H.deep = Object.assign(H.deep || {}, {
+    '4-1': {
+      goal: R`회귀와 분류를 반응변수의 종류로 구분하고, 분류에서 라벨보다 확률이 더 쓸모 있는 이유를 예를 들어 설명할 수 있어요.`,
+      steps: [
+        [R`반응변수의 종류가 문제의 종류를 정해요`, R`<p>$Y$가 숫자(양적)면 <b>회귀</b>, 범주(질적)면 <b>분류</b>예요. 1F~3F의 판매량, 연비는 숫자라 회귀였고, 4F의 연체 여부(Yes/No)는 범주라 분류예요.</p>`],
+        [R`질적 변수 = 순서 없는 집합의 값`, R`<p>눈 색 $\in$ {갈색, 파랑, 초록}, 메일 $\in$ {스팸, 정상}. 이 값들 사이에는 크기나 순서가 없어요. "파랑 − 갈색"이 얼마인지 말할 수 없죠. 분류는 $X$를 받아 이 집합 $\mathcal{C}$ 안의 값을 내놓는 $f(X)$를 만드는 일이에요.</p>`],
+        [R`라벨보다 확률이 값진 이유`, R`<p>"사기다 / 아니다" 라벨 하나보다 "사기일 확률 30%"가 정보가 더 많아요.</p><ul><li><b>문턱값을 상황에 맞게</b> 바꿀 수 있어요. 사기를 놓치는 비용이 크면 20%만 넘어도 조사하도록 문턱을 낮추면 돼요.</li><li><b>얼마나 확신하는지</b> 알 수 있어요. 51%와 99%는 둘 다 "사기"지만 무게가 달라요.</li></ul><p>그래서 로지스틱 회귀는 라벨이 아니라 <b>확률</b> $P(Y = 1 \mid X)$를 모델링해요.</p>`]
+      ],
+      ex: {
+        q: R`<p>각각 회귀 문제인가요, 분류 문제인가요?</p><ol><li>내일 최고 기온 예측</li><li>대출자가 연체할지 예측</li><li>메일이 스팸인지 판정</li><li>아파트 가격 예측</li><li>혈액형(A, B, O, AB) 예측</li></ol>`,
+        a: R`<ol><li>회귀(숫자)</li><li>분류(Yes/No)</li><li>분류(스팸/정상)</li><li>회귀(숫자)</li><li>분류(순서 없는 네 범주)</li></ol>`
+      },
+      exam: R`<ul><li>"Classification predicts a qualitative response." → <b>True</b>.</li><li>슬라이드 문장: 분류 라벨보다 확률 추정이 더 가치 있는 경우가 많다(보험 사기 예).</li></ul>`,
+      mix: [
+        [R`범주를 1, 2, 3 숫자로 바꾸면 회귀 문제가 된다`, R`숫자로 적어도 순서 · 간격이 없는 범주라 여전히 분류예요(4-3에서 왜 회귀로 풀면 안 되는지 봐요).`]
+      ],
+      sum: R`$Y$가 범주면 분류이고, 라벨보다 각 범주의 확률을 추정하는 게 더 쓸모 있어서 로지스틱 회귀는 확률을 모델링해요.`
+    },
+
+    '4-2': {
+      goal: R`Default 데이터의 변수와 그 종류를 말하고, 그림에서 읽히는 관계와 연체가 드물다는 사실이 왜 중요한지 설명할 수 있어요.`,
+      steps: [
+        [R`변수 네 개`, R`<div class="calc">default: 연체 여부 Yes/No → 반응변수(질적, 이진)<br>balance: 월평균 카드 잔액 → 양적<br>income: 연소득 → 양적<br>student: 학생 여부 Yes/No → 질적(0/1 더미로 넣어요)</div>`],
+        [R`그림에서 읽을 것`, R`<p>산점도와 상자그림을 보면 연체자(Yes)는 <b>balance가 확연히 높은 쪽</b>에 몰려 있고, income은 두 그룹이 비슷해요. 그래서 뒤에서 balance 계수는 크고 유의하게, income 계수는 유의하지 않게(p = 0.71) 나와요.</p>`],
+        [R`연체는 드물어요`, R`<p>고객 10,000명 중 연체자는 약 333명, 3.3% 정도예요. 그래서 모든 사람을 "연체 안 함"이라고만 찍어도 오분류율이 3.3%밖에 안 돼요. 오분류율 숫자 하나만 보고 좋은 분류기라고 판단하면 안 되는 이유예요. 확률을 보면 누가 위험한지 순서를 매길 수 있어요.</p>`]
+      ],
+      ex: {
+        q: R`<p>그림만 보고 두 가지를 예상해 보세요.</p><ol><li>balance가 커지면 연체 확률은 어떻게 될까요?</li><li>income 계수는 유의하게 나올까요?</li></ol>`,
+        a: R`<ol><li>커져요. 연체자들이 balance가 높은 쪽에 몰려 있어요. 실제로 balance 계수는 양수이고 z = 24.9로 매우 유의해요(4-7).</li><li>유의하지 않을 가능성이 커요. 두 그룹의 income 분포가 비슷해요. 실제 p-값은 0.71이에요(4-9).</li></ol>`
+      },
+      exam: R`<ul><li>변수의 종류(양적/질적)와 반응변수를 구분하세요.</li><li>그림 해석: "연체자는 balance가 높고 income은 차이가 크지 않다."</li></ul>`,
+      mix: [
+        [R`오분류율이 3%면 아주 좋은 분류기다`, R`연체가 3.3%뿐이라 "전부 연체 안 함"이라고만 해도 오분류율 3.3%예요. 기준과 비교해서 봐야 해요.`]
+      ],
+      sum: R`Default 데이터는 balance · income · student로 연체 여부를 예측하는 문제이고, 연체자는 balance가 높으며 연체 자체는 드물어요.`
+    },
+
+    '4-3': {
+      goal: R`이진 반응에 선형회귀를 쓸 때의 장점과 문제, 세 클래스 이상에서 선형회귀가 부적절한 이유를 구분해서 설명할 수 있어요.`,
+      steps: [
+        [R`0/1로 코딩하면 평균이 곧 확률`, R`<p>$Y$가 0(No) 또는 1(Yes)이면</p>$$\mathbb{E}(Y \mid X = x) = 1 \cdot P(Y = 1 \mid X = x) + 0 \cdot P(Y = 0 \mid X = x) = P(Y = 1 \mid X = x)$$<p>회귀는 조건부 평균을 추정하는 도구(1-6)이니, 이진 반응에서는 확률을 추정하는 도구처럼 보여요. 실제로 선형회귀 + "$\hat Y > 0.5$면 Yes"는 분류기로 꽤 잘 작동하고, 나중에 배울 선형판별분석(LDA)과 같은 결과를 줘요.</p>`],
+        [R`문제: 확률이 0~1을 벗어나요`, R`<p>직선은 위아래로 끝없이 뻗어요. 예를 들어 (가상의 숫자로) 직선이 $\hat p = -0.2 + 0.0002 \times \text{balance}$라면</p><div class="calc">balance 500 → $\hat p = -0.1$ (음수 확률?)<br>balance 6500 → $\hat p = 1.1$ (100% 넘는 확률?)</div><p>확률로 해석할 수 없는 값이 나와요. 그래서 항상 0과 1 사이에 머무는 <b>로지스틱 회귀</b>를 써요.</p>`],
+        [R`세 클래스 이상은 더 근본적인 문제`, R`<p>응급실 환자를 뇌졸중 = 1, 약물 과다복용 = 2, 발작 = 3으로 코딩하면 두 가지를 몰래 가정하게 돼요.</p><ul><li><b>순서</b>: 약물 과다복용이 둘 사이 "중간"이라는 가정</li><li><b>같은 간격</b>: 뇌졸중과 약물의 차이 = 약물과 발작의 차이</li></ul><p>코딩 순서만 바꿔도(약물 = 1, 뇌졸중 = 2, …) 완전히 다른 모델이 나와요. 의미 없는 선택이 결과를 바꾸니 부적절해요. 이진이면 0/1을 뒤집어도 예측이 대칭으로 뒤집힐 뿐이라 이 문제가 없어요.</p>`],
+        [R`정리: 이유가 다르다`, R`<div class="calc">이진: 쓸 수는 있지만 확률이 [0, 1]을 벗어남 → 로지스틱 회귀<br>다중 클래스: 코딩이 순서와 간격을 강요 → 다중 클래스 로지스틱 회귀, 판별분석</div>`]
+      ],
+      ex: {
+        q: R`<ol><li>$Y \in \{0, 1\}$일 때 $\mathbb{E}(Y \mid X = x) = P(Y = 1 \mid X = x)$인 이유를 한 줄로 쓰세요.</li><li>세 클래스를 1, 2, 3으로 코딩한 선형회귀가 코딩 순서에 따라 결과가 달라지는 이유는?</li></ol>`,
+        a: R`<ol><li>$Y$가 0 또는 1이라 평균 = $1 \cdot P(Y=1) + 0 \cdot P(Y=0) = P(Y = 1)$.</li><li>숫자 코딩이 클래스 사이의 순서와 간격을 정해 버리는데, 코딩을 바꾸면 그 순서와 간격이 달라지기 때문이에요.</li></ol>`
+      },
+      exam: R`<ul><li>"Linear regression for a binary response can produce estimated probabilities outside [0, 1]." → <b>True</b>.</li><li>"For a response with three unordered classes, coding them as 1, 2, 3 and using linear regression is appropriate." → <b>False</b>.</li><li>이진과 다중 클래스의 이유를 섞어 쓰지 마세요.</li></ul>`,
+      mix: [
+        [R`이진 분류에 선형회귀는 전혀 쓸 수 없다`, R`분류기로는 꽤 작동해요(LDA와 동등). 문제는 확률로 해석할 수 없는 값이 나온다는 거예요.`],
+        [R`다중 클래스도 확률 범위만 문제다`, R`다중 클래스는 코딩이 순서와 간격을 강요하는 더 근본적인 문제예요.`]
+      ],
+      sum: R`이진 반응에서 선형회귀는 확률이 [0, 1]을 벗어나는 문제가, 다중 클래스에서는 숫자 코딩이 순서와 간격을 강요하는 문제가 있어요.`
+    },
+
+    '4-4': {
+      goal: R`로지스틱 함수로 확률을 계산하고, 확률 · 오즈 · 로그 오즈를 서로 바꾸며, 로그 오즈가 $X$의 직선이 됨을 보일 수 있어요.`,
+      steps: [
+        [R`S자 함수로 확률을 만들어요`, R`$$p(X) = \frac{e^{\beta_0 + \beta_1 X}}{1 + e^{\beta_0 + \beta_1 X}}$$<p>$\eta = \beta_0 + \beta_1 X$가 아주 작으면 $e^\eta \approx 0$이라 $p \approx 0$, 아주 크면 분자와 분모가 거의 같아 $p \approx 1$. 어떤 값이든 <b>항상 0과 1 사이</b>예요.</p>`],
+        [R`오즈: 일어날 확률 ÷ 안 일어날 확률`, R`<div class="calc">$p = 0.5$ → 오즈 $0.5/0.5 = 1$ → 로그 오즈 0<br>$p = 0.8$ → 오즈 $0.8/0.2 = 4$ → 로그 오즈 $\log 4 \approx 1.39$<br>$p = 0.2$ → 오즈 $0.2/0.8 = 0.25$ → 로그 오즈 $\approx -1.39$</div><p>오즈는 0에서 무한대까지, 로그 오즈는 음의 무한대에서 양의 무한대까지 움직여요. 그래서 로그 오즈는 직선이 자유롭게 표현할 수 있는 양이에요.</p>`],
+        [R`로그 오즈는 직선이에요`, R`<p>$1 - p = \frac{1}{1 + e^\eta}$이니 $\frac{p}{1 - p} = e^\eta$, 로그를 취하면</p>$$\log \frac{p}{1 - p} = \beta_0 + \beta_1 X$$<p>확률 축에서는 S자, 로그 오즈 축에서는 직선이에요. 로지스틱 회귀는 "로그 오즈에 대한 선형회귀"라고 기억하세요. log는 자연로그예요.</p>`],
+        [R`계수가 곡선 모양을 정해요`, R`<ul><li>$\beta_1 > 0$이면 $X$가 커질수록 확률 증가, $\beta_1 < 0$이면 감소.</li><li>$|\beta_1|$이 클수록 S자가 가팔라요.</li><li>$p = 0.5$가 되는 지점은 $\beta_0 + \beta_1 X = 0$, 즉 $X = -\beta_0/\beta_1$.</li></ul><div class="calc">Default: $-(-10.6513)/0.0055 \approx 1937$ → balance 약 1,940달러에서 연체 확률 50%</div>`]
+      ],
+      ex: {
+        q: R`<p>$\beta_0 = -3$, $\beta_1 = 0.5$인 로지스틱 모델이에요.</p><ol><li>$x = 4$일 때 확률은?</li><li>확률이 0.5가 되는 $x$는?</li><li>$x = 10$일 때 오즈와 확률은?</li></ol>`,
+        a: R`<div class="calc">① $\eta = -3 + 2 = -1$ → $e^{-1} \approx 0.368$ → $p = 0.368/1.368 \approx 0.269$<br>② $-3 + 0.5x = 0$ → $x = 6$<br>③ $\eta = -3 + 5 = 2$ → 오즈 $e^2 \approx 7.39$ → $p = 7.39/8.39 \approx 0.881$</div>`
+      },
+      exam: R`<ul><li>두 식을 모두 쓸 수 있어야 해요: $p = e^\eta/(1 + e^\eta)$와 $\log[p/(1-p)] = \eta$.</li><li>"In logistic regression, $p(X)$ is a linear function of $X$." → <b>False</b>. 선형인 건 로그 오즈예요.</li><li>"If $\beta_0 + \beta_1 X = 0$, then $p(X) = 0.5$." → <b>True</b>.</li></ul>`,
+      mix: [
+        [R`로지스틱 회귀에서 확률이 $X$의 직선이다`, R`확률은 S자이고, 로그 오즈가 직선이에요.`],
+        [R`오즈 = 확률`, R`오즈는 $p/(1-p)$예요. $p = 0.8$이면 오즈는 4예요.`]
+      ],
+      sum: R`로지스틱 회귀는 $p = e^\eta/(1 + e^\eta)$로 확률을 0~1에 가두고, 로그 오즈 $\log[p/(1-p)] = \beta_0 + \beta_1 X$가 직선이 되는 모델이에요.`
+    },
+
+    '4-5': {
+      goal: R`우도가 무엇을 재는지 말로 설명하고, 작은 데이터로 두 후보 $\beta$의 우도를 계산해 어느 쪽이 더 그럴듯한지 비교할 수 있어요.`,
+      steps: [
+        [R`우도 = 이 $\beta$라면 지금 데이터가 나올 확률`, R`<p>$\beta$를 하나 정하면 각 관측의 확률 $p(x_i)$가 정해져요. 그 $\beta$ 아래에서 <b>우리가 실제로 본 0과 1들이 그대로 나올 확률</b>이 우도 $L(\beta)$예요.</p>`],
+        [R`관측마다 기여하는 값`, R`<ul><li>$y_i = 1$(연체함)인 관측: 그 일이 일어날 확률 $p(x_i)$</li><li>$y_j = 0$(연체 안 함)인 관측: $1 - p(x_j)$</li></ul>$$L(\beta) = \prod_{i:\,y_i = 1} p(x_i) \prod_{j:\,y_j = 0} \big(1 - p(x_j)\big)$$`],
+        [R`왜 곱하나`, R`<p>관측들이 서로 독립이라고 보면 "모두 이렇게 나올 확률"은 각 확률의 곱이에요. 동전 두 번이 둘 다 앞면일 확률이 $0.5 \times 0.5$인 것과 같아요.</p>`],
+        [R`동전으로 감 잡기`, R`<p>동전을 10번 던져 앞면이 7번 나왔어요. 앞면 확률이 $q$라면 우도는 $q^7(1 - q)^3$이에요.</p><div class="calc">$q = 0.5$: $0.5^{10} \approx 0.00098$<br>$q = 0.7$: $0.7^7 \times 0.3^3 \approx 0.0022$</div><p>$q = 0.7$일 때 우도가 더 크고, 실제로 $q = 0.7$에서 최대예요. "데이터를 가장 잘 설명하는 값"을 고르는 게 최대우도추정(MLE)이에요.</p>`],
+        [R`로지스틱 회귀의 MLE`, R`<p>로지스틱 회귀도 같아요. 관측 데이터의 우도를 최대로 만드는 $\beta = [\beta_0, \beta_1]$을 골라요. 연체한 사람에게는 높은 $p$를, 연체 안 한 사람에게는 낮은 $p$를 주는 $\beta$일수록 우도가 커요.</p>`]
+      ],
+      ex: {
+        q: R`<p>관측 3개의 $y$가 1, 0, 1이에요. 두 후보 $\beta$가 각 관측에 주는 확률 $p(x_i)$는 다음과 같아요. 어느 $\beta$가 더 그럴듯한가요?</p><div class="calc">$\beta_A$: 0.9, 0.2, 0.7<br>$\beta_B$: 0.6, 0.4, 0.6</div>`,
+        a: R`<div class="calc">$L(\beta_A) = 0.9 \times (1 - 0.2) \times 0.7 = 0.9 \times 0.8 \times 0.7 = 0.504$<br>$L(\beta_B) = 0.6 \times (1 - 0.4) \times 0.6 = 0.216$</div><p>$\beta_A$의 우도가 커요. 연체한 두 사람에게 높은 확률, 연체 안 한 사람에게 낮은 확률을 줬기 때문이에요. 두 번째 관측은 $y = 0$이라 $p$가 아니라 $1 - p$를 곱한 것에 주의하세요.</p>`
+      },
+      exam: R`<ul><li>"The likelihood gives the probability of the observed zeros and ones in the data." → <b>True</b>.</li><li>우도 식에서 $y = 0$인 관측이 곱하는 항은 $1 - p(x_j)$예요.</li></ul>`,
+      mix: [
+        [R`우도는 $\beta$가 참일 확률이다`, R`$\beta$를 정했을 때 관측 데이터가 나올 확률이에요. $\beta$에 대한 확률이 아니에요.`],
+        [R`$y = 0$인 관측도 $p(x)$를 곱한다`, R`$y = 0$이 일어날 확률은 $1 - p(x)$예요.`]
+      ],
+      sum: R`우도는 주어진 $\beta$ 아래에서 관측된 0 · 1들이 나올 확률(각 관측 확률의 곱)이고, MLE는 이 곱을 최대로 하는 $\beta$를 골라요.`
+    },
+
+    '4-6': {
+      goal: R`곱인 우도를 로그로 합으로 바꾸고, 로그우도를 한 줄 식으로 정리해 미분 조건을 유도하며, 닫힌 해가 없는 이유를 설명할 수 있어요.`,
+      steps: [
+        [R`로그로 곱을 합으로`, R`$$\log L(\beta) = \sum_{i:\,y_i = 1} \log p(x_i) + \sum_{j:\,y_j = 0} \log\big(1 - p(x_j)\big)$$<p>1보다 작은 숫자 1만 개를 곱하면 컴퓨터에서 0으로 뭉개질 만큼 작아지지만, 로그의 합은 다루기 쉬워요. 미분도 합이 훨씬 편해요.</p>`],
+        [R`최대가 되는 위치는 그대로, 최댓값은 달라요`, R`<p>로그는 단조증가라서 $L$이 가장 큰 $\beta$에서 $\log L$도 가장 커요. 위치(argmax)는 그대로지만 최댓값 자체는 달라요.</p><div class="calc">4-5 예제: $L(\beta_A) = 0.504$ → $\log L(\beta_A) = \log 0.9 + \log 0.8 + \log 0.7 \approx -0.105 - 0.223 - 0.357 = -0.685$</div>`],
+        [R`한 줄 식으로 정리`, R`<p>$y_i$가 1이면 첫째 항만, 0이면 둘째 항만 살아남는 식으로 합치면</p>$$\log L = \sum_{i=1}^{N} \Big[ y_i \log p_i + (1 - y_i)\log(1 - p_i) \Big]$$<p>$\eta_i = \beta_0 + \beta_1 x_i$로 두면 $\log p_i = \eta_i - \log(1 + e^{\eta_i})$, $\log(1 - p_i) = -\log(1 + e^{\eta_i})$이라서</p>$$\log L = \sum_{i=1}^{N} \Big[ y_i \eta_i - \log\big(1 + e^{\eta_i}\big) \Big]$$`],
+        [R`미분해서 0으로`, R`<p>핵심 한 줄: $\frac{d}{d\eta}\log(1 + e^\eta) = \frac{e^\eta}{1 + e^\eta} = p$. 그래서</p>$$\frac{\partial \log L}{\partial \beta_0} = \sum (y_i - p_i) = 0, \qquad \frac{\partial \log L}{\partial \beta_1} = \sum x_i (y_i - p_i) = 0$$<p>최소제곱의 1계 조건($\sum e_i = 0$, $\sum x_i e_i = 0$)과 모양이 같아요. "실제값 − 예측 확률"이 잔차 역할을 해요.</p>`],
+        [R`닫힌 해가 없는 이유와 해결책`, R`<p>$p_i$가 $\beta$의 비선형 함수(S자)라서, 위 조건은 $\beta$에 대한 선형 연립방정식이 아니에요. 최소제곱처럼 정규방정식 한 번으로 풀 수 없어요. 대신 <b>반복 최적화</b>(뉴턴-랩슨, 경사상승법)로 조금씩 $\beta$를 움직여 최대점을 찾아요. 기울기 $\sum x_i(y_i - p_i)$가 양수면 $\beta_1$을 키우는 방향으로 가는 식이에요.</p>`]
+      ],
+      ex: {
+        q: R`<p>데이터 $(x, y)$ = (1, 0), (2, 1), (3, 1)에서 현재 $\beta_0 = \beta_1 = 0$이라 모든 $p_i = 0.5$예요. 두 편미분의 값을 구하고, 다음 단계에서 $\beta_0, \beta_1$을 어느 방향으로 움직여야 하는지 말해 보세요.</p>`,
+        a: R`<div class="calc">$\partial/\partial\beta_0 = (0 - 0.5) + (1 - 0.5) + (1 - 0.5) = 0.5 > 0$<br>$\partial/\partial\beta_1 = 1(-0.5) + 2(0.5) + 3(0.5) = 2 > 0$</div><p>둘 다 양수라 $\beta_0, \beta_1$을 키우는 방향이에요. $x$가 큰 쪽에서 $y = 1$이 나오니 기울기를 양수로 키워야 한다는, 데이터와 맞는 결론이에요. 이걸 반복하는 게 반복 최적화예요.</p>`
+      },
+      exam: R`<p>유도 문제 1순위예요. 답안 흐름:</p><ol><li>로그로 곱 → 합(argmax는 불변, max 값은 달라짐)</li><li>한 줄 식 $\sum [y_i \eta_i - \log(1 + e^{\eta_i})]$로 정리</li><li>$\frac{d}{d\eta}\log(1 + e^\eta) = p$를 써서 $\sum (y_i - p_i) = 0$, $\sum x_i(y_i - p_i) = 0$</li><li>"$p$가 $\beta$에 비선형이라 닫힌 해가 없고, 반복 최적화로 구한다."</li></ol><p>"Taking the log changes the maximizer of the likelihood." → <b>False</b>.</p>`,
+      mix: [
+        [R`로그를 취하면 닫힌 해가 생긴다`, R`로그는 계산을 편하게 할 뿐이에요. $p$가 $\beta$에 비선형이라 여전히 닫힌 해가 없어요.`],
+        [R`로그를 취하면 최댓값도 같다`, R`최대가 되는 위치(argmax)만 같고, 최댓값 자체는 달라요.`]
+      ],
+      sum: R`로그우도 $\sum[y_i\eta_i - \log(1 + e^{\eta_i})]$를 미분하면 $\sum(y_i - p_i) = 0$, $\sum x_i(y_i - p_i) = 0$이 나오지만, $p$가 비선형이라 닫힌 해 없이 반복 최적화로 풀어요.`
+    },
+
+    '4-7': {
+      goal: R`로지스틱 회귀 계수를 로그 오즈와 오즈비로 정확히 해석하고, 확률의 변화량이 위치마다 다른 이유를 숫자로 보이며, $H_0$가 참일 때의 모델을 쓸 수 있어요.`,
+      steps: [
+        [R`계수는 로그 오즈의 변화량`, R`<p>$\log\frac{p}{1-p} = \beta_0 + \beta_1 X$이니 $\hat\beta_1 = 0.0055$는 "balance가 1달러 늘 때 연체의 <b>로그 오즈</b>가 0.0055 증가"예요. "확률이 0.0055 증가"라고 쓰면 틀려요.</p>`],
+        [R`오즈비 = $e^{\beta_1}$`, R`<p>로그 오즈가 $\beta_1$만큼 늘면 오즈는 $e^{\beta_1}$배가 돼요.</p><div class="calc">balance +1달러: 오즈 $e^{0.0055} \approx 1.0055$배<br>balance +100달러: 오즈 $e^{0.55} \approx 1.73$배</div>`],
+        [R`확률의 변화량은 위치마다 달라요`, R`<p>같은 +100달러라도 S자의 어디에 있느냐에 따라 확률 변화가 달라요.</p><div class="calc">balance 1000 → 1100: 확률 0.006 → 0.010 (약 +0.4%p)<br>balance 2000 → 2100: 확률 0.586 → 0.711 (약 +12.5%p)<br>두 경우 모두 오즈는 1.73배</div><p>그래서 로지스틱 회귀에서 "1단위당 확률 변화"는 하나의 숫자로 말할 수 없어요. 일정한 건 로그 오즈의 변화($\beta_1$)와 오즈비($e^{\beta_1}$)예요.</p>`],
+        [R`가설검정: $H_0$가 참이면 확률이 상수`, R`<p>$H_0: \beta_1 = 0$이면 $X$ 항이 사라져서</p>$$p(X) = \frac{e^{\beta_0}}{1 + e^{\beta_0}}$$<p>즉 balance와 상관없이 모든 사람의 연체 확률이 같아요. 예를 들어 $\beta_0 = -3.37$이면 모두 약 3.3%(전체 연체율)예요.</p><p>표의 z-통계량은 t와 같은 방식(계수 ÷ SE)으로 읽어요: $0.0055/0.0002 \approx 24.9$(표는 반올림 전 값으로 계산), p < 0.0001 → $H_0$ 기각, balance와 연체 확률은 관련이 있어요.</p>`]
+      ],
+      ex: {
+        q: R`<p>$\hat\beta_1 = 0.0055$일 때</p><ol><li>balance가 200달러 늘면 연체 오즈는 몇 배가 되나요?</li><li>"balance가 200달러 늘면 연체 확률이 $200 \times 0.0055 = 1.1$만큼 는다"는 설명은 왜 틀렸나요?</li></ol>`,
+        a: R`<ol><li>$e^{200 \times 0.0055} = e^{1.1} \approx 3.0$배.</li><li>0.0055는 로그 오즈의 변화량이지 확률의 변화량이 아니에요. 확률은 0과 1 사이라 1.1이 늘 수 없고, 확률 변화는 현재 balance 위치에 따라 달라요.</li></ol>`
+      },
+      exam: R`<ul><li>"A one-unit increase in balance increases the probability of default by 0.0055." → <b>False</b>(로그 오즈).</li><li>"Under $H_0: \beta_1 = 0$, $p(X) = e^{\beta_0}/(1 + e^{\beta_0})$." → <b>True</b>.</li><li>오즈비를 물으면 $e^{\beta_1}$.</li></ul>`,
+      mix: [
+        [R`$\beta_1$은 확률의 변화량이다`, R`$\beta_1$은 로그 오즈의 변화량, $e^{\beta_1}$은 오즈의 배수예요.`],
+        [R`같은 양만큼 $X$가 늘면 확률도 항상 같은 양만큼 는다`, R`S자 곡선의 기울기가 위치마다 달라서 확률 변화량도 달라요. 오즈비는 일정해요.`]
+      ],
+      sum: R`로지스틱 계수는 로그 오즈의 변화량이고($e^{\beta_1}$ = 오즈비), 확률 변화는 위치마다 다르며, $H_0: \beta_1 = 0$이면 확률이 $X$와 무관한 상수가 돼요.`
+    },
+
+    '4-8': {
+      goal: R`추정된 로지스틱 모델로 연체 확률을 세 단계(η → $e^\eta$ → 나누기)로 정확히 계산하고, 더미 변수의 예측도 할 수 있어요.`,
+      steps: [
+        [R`계산은 세 단계`, R`<div class="calc">① $\eta = \hat\beta_0 + \hat\beta_1 x$<br>② $e^\eta$<br>③ $\hat p = e^\eta / (1 + e^\eta)$ (또는 $1/(1 + e^{-\eta})$)</div>`],
+        [R`balance 1,000달러`, R`<div class="calc">① $\eta = -10.6513 + 0.0055 \times 1000 = -5.1513$<br>② $e^{-5.1513} \approx 0.0058$<br>③ $\hat p = 0.0058/1.0058 \approx 0.006$ → 약 0.6%</div>`],
+        [R`balance 2,000달러`, R`<div class="calc">① $\eta = -10.6513 + 11 = 0.3487$<br>② $e^{0.3487} \approx 1.417$<br>③ $\hat p = 1.417/2.417 \approx 0.586$ → 약 58.6%</div><p>balance가 두 배가 되니 확률은 100배 가까이 뛰었어요. S자의 가파른 구간을 지났기 때문이에요.</p>`],
+        [R`student 같은 0/1 변수`, R`<p>학생이면 1, 아니면 0을 넣어요(더미 변수). student만 넣은 모델은 $\hat\beta_0 = -3.5041$, $\hat\beta_1 = 0.4049$.</p><div class="calc">학생: $\eta = -3.5041 + 0.4049 = -3.0992$ → $e^\eta \approx 0.0451$ → $\hat p \approx 0.0431$<br>비학생: $\eta = -3.5041$ → $e^\eta \approx 0.0301$ → $\hat p \approx 0.0292$</div><p>이 모델에서는 학생의 연체 확률(4.31%)이 비학생(2.92%)보다 높아요. 다음 객실에서 이게 뒤집혀요.</p>`]
+      ],
+      ex: {
+        q: R`<p>$\hat\beta_0 = -10.6513$, $\hat\beta_1 = 0.0055$로 balance 1,500달러와 2,500달러의 연체 확률을 계산해 보세요.</p>`,
+        a: R`<div class="calc">1,500: $\eta = -10.6513 + 8.25 = -2.4013$ → $e^\eta \approx 0.0906$ → $\hat p \approx 0.0906/1.0906 \approx 0.083$<br>2,500: $\eta = -10.6513 + 13.75 = 3.0987$ → $e^\eta \approx 22.2$ → $\hat p \approx 22.2/23.2 \approx 0.957$</div><p>1,500달러는 약 8%, 2,500달러는 약 96%예요.</p>`
+      },
+      exam: R`<ul><li>계산 문제 그 자체예요. 계산기로 $e^x$를 구하는 연습을 해 두세요.</li><li>검산 요령: $\eta < 0$이면 $\hat p < 0.5$, $\eta > 0$이면 $\hat p > 0.5$.</li><li>더미 변수는 Yes = 1, No = 0을 넣어요.</li></ul>`,
+      mix: [
+        [R`$\hat p = \eta$로 계산한다`, R`$\eta$는 로그 오즈예요. 반드시 $e^\eta/(1 + e^\eta)$로 확률로 바꿔야 해요.`],
+        [R`$\hat p = e^\eta$로 계산한다`, R`$e^\eta$는 오즈예요. $1 + e^\eta$로 한 번 더 나눠야 확률이에요.`]
+      ],
+      sum: R`확률은 $\eta = \hat\beta_0 + \hat\beta_1 x$ → $e^\eta$ → $e^\eta/(1 + e^\eta)$ 순서로 계산하고, balance 1,000달러는 약 0.6%, 2,000달러는 약 58.6%예요.`
+    },
+
+    '4-9': {
+      goal: R`여러 변수를 넣은 로지스틱 회귀 결과를 읽고, student 계수의 부호가 바뀐 이유를 교란(confounding)으로 설명할 수 있어요.`,
+      steps: [
+        [R`변수를 여러 개 넣어도 구조는 같아요`, R`$$\log\frac{p}{1 - p} = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p$$<p>각 계수는 "다른 변수를 고정한 채" 그 변수가 1 늘 때 로그 오즈의 변화예요(3-1과 같은 꼬리표).</p>`],
+        [R`결과표 읽기`, R`<div class="calc">balance 0.0057 (z = 24.74) → 유의, 양수<br>income 0.0030 (p = 0.71) → 유의하지 않음<br>student[Yes] −0.6468 (p = 0.0062) → 유의, <b>음수</b></div><p>student만 넣었을 땐 +0.4049였는데 balance와 함께 넣으니 −0.6468. 부호가 뒤집혔어요.</p>`],
+        [R`세 가지 사실을 이어 붙여요`, R`<ol><li>학생은 비학생보다 <b>balance가 높은</b> 경향이 있어요.</li><li>balance가 높을수록 연체 확률이 높아요.</li><li><b>같은 balance끼리 비교하면</b> 학생이 비학생보다 덜 연체해요.</li></ol><p>1 + 2 때문에 balance를 모르고 보면(주변, marginal) 학생이 더 위험해 보여요. 3은 balance를 고정해야 보여요. 다변량 모델은 3을 분리해 내요.</p>`],
+        [R`숫자로 확인`, R`<p>ISLR의 계산: balance 1,500달러, 소득 4만 달러인 사람의 연체 확률</p><div class="calc">학생: 0.058 · 비학생: 0.105</div><p>조건이 같으면 학생이 덜 위험해요. (반올림 전 계수로 계산한 값이라 표의 숫자로 직접 계산하면 조금 다를 수 있어요.)</p>`],
+        [R`이 현상의 이름: 교란`, R`<p>student의 겉보기 효과가 사실은 balance를 통해 생긴 거예요. balance가 <b>교란 변수</b>예요. 3-2의 "상관된 예측변수" 이야기, 3-5의 newspaper가 radio의 공을 대신 인정받은 이야기와 같은 원리예요.</p><p>실무적 의미: balance 정보 없이 학생이라는 이유만으로 위험하다고 판단하면 안 되고, balance가 같다면 학생이 오히려 덜 위험해요.</p>`]
+      ],
+      ex: {
+        q: R`<p>(서술 연습) "Explain why the coefficient for student is positive in the single-variable model but negative in the multiple logistic regression model."</p>`,
+        a: R`<p><b>모범 답안</b>: Students tend to have higher credit card balances, and higher balances are associated with higher default rates. So marginally, students default more (positive coefficient). However, for a fixed balance (and income), students are less likely to default than non-students (negative coefficient). The single-variable model mixes the effect of balance into the student variable; this is confounding.</p><p>한국어로: 학생은 balance가 높고 balance가 높으면 연체가 많아서 전체적으로는 학생의 연체율이 높지만(+), balance를 고정하면 학생이 덜 연체한다(−). 단독 모델에서는 balance의 효과가 student에 섞여 들어간 것이고 이것이 교란이다.</p>`
+      },
+      exam: R`<ul><li>서술 1순위: 부호 반전의 이유(위 모범 답안).</li><li>"income is a significant predictor in the multiple model." → <b>False</b>(p = 0.71).</li><li>"For a fixed balance and income, a student is less likely to default than a non-student." → <b>True</b>.</li></ul>`,
+      mix: [
+        [R`부호가 바뀐 건 데이터나 계산 오류다`, R`교란 때문이에요. 단독 모델은 balance의 효과를 student에 섞어서 보여 줘요.`],
+        [R`다변량 모델에서 학생은 무조건 덜 위험하다`, R`"balance와 income이 같을 때" 덜 위험하다는 뜻이에요. 조건을 빼고 말하면 틀려요.`]
+      ],
+      sum: R`학생은 balance가 높아서 전체적으로는 연체율이 높아 보이지만(+), balance를 고정하면 덜 연체해요(−). 이게 교란이고 다변량 모델이 이를 분리해요.`
+    },
+
+    '4-10': {
+      goal: R`클래스가 여러 개일 때 소프트맥스로 확률을 계산하고, 확률의 합이 1이 되는 이유와 이진 로지스틱과의 관계를 설명할 수 있어요.`,
+      steps: [
+        [R`클래스마다 점수를 하나씩`, R`<p>클래스 $k$마다 자기만의 선형함수(점수)가 있어요.</p>$$\eta_k = \beta_{0k} + \beta_{1k}X_1 + \cdots + \beta_{pk}X_p$$<p>계수에 클래스 첨자 $k$가 붙는다는 게 핵심이에요.</p>`],
+        [R`지수를 취해 전체 합으로 나눠요(소프트맥스)`, R`$$P(Y = k \mid X) = \frac{e^{\eta_k}}{\sum_{\ell=1}^{K} e^{\eta_\ell}}$$<p>$e^{\eta}$는 항상 양수이고, 전체 합으로 나누니 $K$개 확률의 합은 <b>항상 1</b>이에요.</p>`],
+        [R`숫자로 해 봐요`, R`<div class="calc">점수 $\eta = (2, 1, 0)$ → $e^\eta \approx (7.39,\ 2.72,\ 1.00)$, 합 11.11<br>확률 ≈ (0.665, 0.245, 0.090), 합 1</div><p>점수가 가장 큰 클래스가 가장 큰 확률을 받지만, 나머지도 0이 아닌 확률을 받아요.</p>`],
+        [R`점수에 같은 값을 더해도 확률은 그대로`, R`<p>모든 $\eta_k$에 같은 상수를 더하면 분자와 분모에 같은 $e^c$가 곱해져 약분돼요. 그래서 한 클래스를 기준(점수 0)으로 두고 $K - 1$개의 선형함수만 추정해도 돼요. $K = 2$면</p>$$P(Y = 1) = \frac{e^{\eta_1}}{e^{\eta_1} + e^{\eta_2}} = \frac{e^{\eta_1 - \eta_2}}{1 + e^{\eta_1 - \eta_2}}$$<p>두 선형함수의 차이가 하나의 선형함수이니 4-4의 이진 로지스틱과 같아요.</p>`],
+        [R`이름과 추정`, R`<p>다중 클래스 로지스틱 회귀 = <b>다항 회귀(multinomial regression)</b>. 모수는 역시 MLE로 구해요. 이름이 비슷한 <b>다항식 회귀(polynomial regression, 3-9)</b>와 헷갈리지 마세요. 4-3의 응급실 예처럼 순서 없는 클래스에 숫자를 붙이는 문제도 없어요.</p>`]
+      ],
+      ex: {
+        q: R`<p>세 클래스의 점수가 $\eta = (1, 1, 3)$이에요.</p><ol><li>각 클래스의 확률은?</li><li>모든 점수에서 1을 빼 $(0, 0, 2)$로 바꾸면 확률은 어떻게 되나요?</li></ol>`,
+        a: R`<div class="calc">① $e^\eta \approx (2.718,\ 2.718,\ 20.09)$, 합 25.52 → 확률 ≈ (0.107, 0.107, 0.787)<br>② $e^\eta \approx (1,\ 1,\ 7.389)$, 합 9.389 → 확률 ≈ (0.107, 0.107, 0.787), 그대로</div>`
+      },
+      exam: R`<ul><li>"Multiclass logistic regression is also referred to as multinomial regression." → <b>True</b>. "…as polynomial regression." → <b>False</b>.</li><li>"There is a linear function for each class." → <b>True</b>.</li><li>계산: 점수 몇 개를 주고 소프트맥스 확률 구하기.</li></ul>`,
+      mix: [
+        [R`다중 클래스 로지스틱 = 다항식(polynomial) 회귀`, R`다항(multinomial) 회귀예요. 다항식 회귀는 3-9의 $X^2$ 항을 넣는 회귀예요.`],
+        [R`클래스가 K개면 하나의 선형함수를 K구간으로 나눈다`, R`클래스마다 선형함수가 하나씩 있고, 소프트맥스로 확률을 만들어요.`]
+      ],
+      sum: R`다중 클래스 로지스틱 회귀(다항 회귀)는 클래스마다 선형 점수를 두고 소프트맥스 $e^{\eta_k}/\sum_\ell e^{\eta_\ell}$로 합이 1인 확률을 만들며, $K = 2$면 이진 로지스틱과 같아요.`
+    }
+  });
+})();
