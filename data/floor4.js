@@ -160,7 +160,7 @@ $$y_i[\eta_i - \log(1+e^{\eta_i})] + (1-y_i)[-\log(1+e^{\eta_i})] = y_i\eta_i - 
 <tr><td>Intercept</td><td class="num">−10.6513</td><td class="num">0.3612</td><td class="num">−29.5</td><td class="num">&lt; 0.0001</td></tr>
 <tr class="hl"><td>balance</td><td class="num">0.0055</td><td class="num">0.0002</td><td class="num">24.9</td><td class="num">&lt; 0.0001</td></tr>
 </table></div>
-<p class="small muted">(ISLR Table 4.1. 로지스틱 회귀에서는 t 대신 z-통계량이지만 읽는 법은 같음: 계수 ÷ SE)</p>
+<p class="small muted">(ISLR Table 4.1. 로지스틱 회귀에서는 t 대신 z-통계량이지만 읽는 법은 같음: 계수 ÷ SE. 왜 z인지는 아래 교수님 강의 노트.)</p>
 <ul>
 <li>$\hat\beta_1 = 0.0055$: balance가 증가하면 연체 <b>확률이 증가</b>하는 방향.</li>
 <li>정확히는, balance 한 단위 증가가 <mark>연체의 로그 오즈를 0.0055 단위 증가</mark>시키는 것과 연관됩니다. $\log\frac{p}{1-p} = \beta_0 + \beta_1 X$이니까요. (확률의 증가량은 현재 $X$ 값에 따라 다릅니다. S자 곡선의 기울기가 위치마다 다르므로.)</li>

@@ -49,8 +49,8 @@ Data-Centric AI (서울대, 오민환 교수) Lecture 1–4 시험 대비 스터
 - `assets/nyan.js` 고양이 아트, 꾸미기 아이템, 도장 (`NYAN.render(look)`, `NYAN.stamp(id)`; 모두 손으로 쓴 SVG)
 - `data/floor1..4.js` 객실 콘텐츠 (`String.raw` 템플릿, 인라인 `$…$`, 디스플레이 `$$…$$`)
 - `data/exam.js` 플래시카드와 모의고사 추가 문제
-- `data/lecture.js` 강의 녹음(9/4·9/11·9/18)에서 뽑은 객실별 강의 노트(`HOTEL.lecture`), 실전 연습 문제(`HOTEL.drill`), 실전형 모의고사의 short/long answer 문제 은행(`HOTEL.written`)
-- `data/deep1..4.js` 층별 "차근차근 이해하기" (`HOTEL.deep[객실 id] = { goal, steps: [[제목, html]…], ex: { q, a }, exam, mix: [[헷갈린 생각, 바른 이해]…], sum }`). 2F는 같은 작은 데이터(x = 1…5, y = 2, 4, 5, 4, 5)로 최소제곱 → RSE · R² · F → 행렬 공식(3-3)까지 이어서 계산합니다. 4F는 강의 녹음이 없어 슬라이드와 ISLR 기준입니다.
+- `data/lecture.js` 강의 녹음(9/4·9/11·9/18·9/25 = Lecture 1–4)에서 뽑은 객실별 강의 노트(`HOTEL.lecture`), 실전 연습 문제(`HOTEL.drill`), 실전형 모의고사의 short/long answer 문제 은행(`HOTEL.written`)
+- `data/deep1..4.js` 층별 "차근차근 이해하기" (`HOTEL.deep[객실 id] = { goal, steps: [[제목, html]…], ex: { q, a }, exam, mix: [[헷갈린 생각, 바른 이해]…], sum }`). 2F는 같은 작은 데이터(x = 1…5, y = 2, 4, 5, 4, 5)로 최소제곱 → RSE · R² · F → 행렬 공식(3-3)까지 이어서 계산합니다. 4F의 "시험에서는" 항목에는 9/25 강의에서 교수님이 강조한 말이 들어 있습니다.
 - `tools/test.html` 검증 하네스 (헤드리스 Chrome `--dump-dom`으로 실행: KaTeX 오류, 남은 `$`, 시각 자료 오류, 퀴즈 정답 범위, 강의 노트·실전 연습의 형식과 수식, 모든 객실의 차근차근 설명(단계 3개 이상, 목표·시험·정리 포함, 수식), 냥 아이템 전 조합 렌더 검사)
 - `publish.html` claude.ai 아티팩트 게시용(문서 골격 없는 버전)
 
